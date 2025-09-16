@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vital Signs Formatter</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 10px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 5px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .bed-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .bed-container h3 {
+      margin-top: 0;
+      color: #34495e;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    pre {
+      background-color: #eef1f5;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+
+    @media (min-width: 600px) {
+      .bed-container, button, pre {
+        max-width: 600px;
+        margin: 0 auto 20px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Vital Signs Formatter</h2>
+
+  <label for="bedCount">How many beds are occupied?</label>
+  <select id="bedCount" onchange="generateBedForms()">
+    <option value="">Select...</option>
+    <option value="1">1 bed</option>
+    <option value="2">2 beds</option>
+    <option value="3">3 beds</option>
+    <option value="4">4 beds</option>
+    <option value="5">5 beds</option>
+    <option value="6">6 beds</option>
+    <option value="7">7 beds</option>
+    <option value="8">8 beds</option>
+  </select>
+
+  <div id="bedsContainer"></div>
+
+  <button onclick="generateAllMessages()">Generate Message</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    function generateBedForms() {
+      const container = document.getElementById('bedsContainer');
+      container.innerHTML = '';
+      const count = parseInt(document.getElementById('bedCount').value);
+
+      for (let i = 1; i <= count; i++) {
+        const div = document.createElement('div');
+        div.className = 'bed-container';
+        div.innerHTML = `
+          <h3>Patient ${i}</h3>
+
+          <label>Room:</label>
+          <input type="text" id="room${i}" placeholder="e.g. A5">
+
+          <label>Bed #:</label>
+          <input type="number" id="bednum${i}" placeholder="e.g. 1" min="1">
+
+          <label>Patient Categories:</label>
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="cat_surgery${i}">Surgery</label>
+            <label><input type="checkbox" id="cat_pedia${i}">Pedia</label>
+            <label><input type="checkbox" id="cat_icu${i}">ICU</label>
+          </div>
+
+          <label>Patient Name:</label>
+          <input type="text" id="name${i}">
+
+          <label>BP (mmHg):</label>
+          <input type="text" id="bp${i}">
+
+          <label>HR (bpm):</label>
+          <input type="text" id="hr${i}">
+
+          <label>RR (/min):</label>
+          <input type="text" id="rr${i}">
+
+          <label>Temp (°C):</label>
+          <input type="text" id="temp${i}">
+
+          <label>O₂ Saturation (%):</label>
+          <input type="text" id="spo2${i}">
+
+          <label>GCS (optional):</label>
+          <input type="number" placeholder="Eye (E)" id="gcs_e${i}" min="1" max="4">
+          <input type="number" placeholder="Verbal (V)" id="gcs_v${i}" min="1" max="5">
+          <input type="number" placeholder="Motor (M)" id="gcs_m${i}" min="1" max="6">
+          <input type="number" placeholder="Total (optional)" id="gcs_total${i}">
+
+          <label>RBS (optional):</label>
+          <input type="text" id="rbs${i}">
+
+          <label>I&O (optional):</label>
+          <input type="text" id="io${i}">
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function generateAllMessages() {
+      const count = parseInt(document.getElementById('bedCount').value);
+      let messages = { 'Surgery': '', 'Pedia': '', 'ICU': '' };
+
+      for (let i = 1; i <= count; i++) {
+        const categories = [];
+        if (document.getElementById(`cat_surgery${i}`).checked) categories.push('Surgery');
+        if (document.getElementById(`cat_pedia${i}`).checked) categories.push('Pedia');
+        if (document.getElementById(`cat_icu${i}`).checked) categories.push('ICU');
+
+        const room = document.getElementById(`room${i}`).value || 'Unknown Room';
+        const bedNum = document.getElementById(`bednum${i}`).value || 'Unknown Bed';
+        const name = document.getElementById(`name${i}`).value || 'N/A';
+        const bp = document.getElementById(`bp${i}`).value || 'N/A';
+        const hr = document.getElementById(`hr${i}`).value || 'N/A';
+        const rr = document.getElementById(`rr${i}`).value || 'N/A';
+        const temp = document.getElementById(`temp${i}`).value || 'N/A';
+        const spo2 = document.getElementById(`spo2${i}`).value || 'N/A';
+
+        const gcs_e = parseInt(document.getElementById(`gcs_e${i}`).value) || 0;
+        const gcs_v = parseInt(document.getElementById(`gcs_v${i}`).value) || 0;
+        const gcs_m = parseInt(document.getElementById(`gcs_m${i}`).value) || 0;
+        const gcs_total_input = document.getElementById(`gcs_total${i}`).value;
+        const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
+
+        const rbs = document.getElementById(`rbs${i}`).value;
+        const io = document.getElementById(`io${i}`).value;
+
+        let message = `Room ${room} - Bed ${bedNum}\n` +
+                      `Patient: ${name}\n` +
+                      `BP: ${bp} \n` +
+                      `HR: ${hr} \n` +
+                      `RR: ${rr} \n` +
+                      `Temp: ${temp}\n` +
+                      `O₂: ${spo2}%\n`;
+
+        if (gcsFilled) {
+          const gcs_total = gcs_total_input
+            ? gcs_total_input
+            : (gcs_e + gcs_v + gcs_m > 0 ? gcs_e + gcs_v + gcs_m : 'N/A');
+          message += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
+        }
+
+        if (rbs) message += `RBS: ${rbs}\n`;
+        if (io) message += `I&O: ${io}\n`;
+
+        message += `\n`;
+
+        // If no category is selected, skip this patient
+        if (categories.length === 0) continue;
+
+        // Add to each selected category
+        categories.forEach(cat => {
+          messages[cat] += message;
+        });
+      }
+
+      // Final output string
+      let finalOutput = '';
+      ['Surgery', 'Pedia', 'ICU'].forEach(cat => {
+        if (messages[cat]) {
+          finalOutput += `--- ${cat} Patients ---\n${messages[cat]}\n`;
+        }
+      });
+
+      // Display result
+      document.getElementById('output').innerText = finalOutput.trim();
+    }
+  </script>
+</body>
+</html>
+
