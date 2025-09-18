@@ -170,6 +170,8 @@ function copyToClipboard(id) {
 
           <label>RR (/min):</label>
           <input type="number" placeholder="e.g. 18" id="rr${i}">
+	  <label><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
+
 
           <label>Temp (°C):</label>
           <input type="text" placeholder="e.g. 36.5" id="temp${i}">
@@ -224,6 +226,8 @@ function generateAllMessages() {
     const bp = document.getElementById(`bp${i}`).value || 'N/A';
     const hr = document.getElementById(`hr${i}`).value || 'N/A';
     const rr = document.getElementById(`rr${i}`).value || 'N/A';
+    const isMV = document.getElementById(`mv${i}`).checked;
+    const finalRR = isMV ? 'MV' : rr;
     const temp = document.getElementById(`temp${i}`).value || 'N/A';
     const spo2 = document.getElementById(`spo2${i}`).value || 'N/A';
 
@@ -241,7 +245,7 @@ function generateAllMessages() {
                   `Patient: ${name}\n` +
                   `BP: ${bp} \n` +
                   `HR: ${hr} \n` +
-                  `RR: ${rr} \n` +
+                  `RR: ${finalRR} \n` +
                   `Temp: ${temp}\n` +
                   `O₂: ${spo2}%\n`;
 
@@ -284,4 +288,3 @@ function generateAllMessages() {
   </script>
 </body>
 </html>
-
