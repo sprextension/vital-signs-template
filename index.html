@@ -173,11 +173,12 @@
           <input type="number" placeholder="Motor (M)" id="gcs_m${i}" min="1" max="6">
           <input type="number" placeholder="Total (optional)" id="gcs_total${i}">
 
-          <label>RBS (optional):</label>
-          <input type="text" id="rbs${i}">
+<label>Bowel Movement (BM) - optional:</label>
+<input type="text" id="bm${i}">
 
-          <label>I&O (optional):</label>
-          <input type="text" id="io${i}">
+<label>Urine Output (UO) - optional:</label>
+<input type="text" id="uo${i}">
+
         `;
         container.appendChild(div);
       }
@@ -222,7 +223,9 @@
         const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
 
         const rbs = document.getElementById(`rbs${i}`).value;
-        const io = document.getElementById(`io${i}`).value;
+        const bm = document.getElementById(`bm${i}`).value;
+	const uo = document.getElementById(`uo${i}`).value;
+
 
         let message = `Room ${room} - Bed ${bedNum}\n` +
                       `Patient: ${name}\n` +
@@ -240,7 +243,9 @@
         }
 
         if (rbs) message += `RBS: ${rbs}\n`;
-        if (io) message += `I&O: ${io}\n`;
+        if (bm) message += `BM: ${bm}\n`;
+	if (uo) message += `UO: ${uo}\n`;
+
 
         message += `\n`;
 
@@ -267,4 +272,3 @@
   </script>
 </body>
 </html>
-
