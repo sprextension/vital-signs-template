@@ -117,6 +117,15 @@
 
   <script>
 
+function handleSingleCheck(event, className) {
+  const checkboxes = document.getElementsByClassName(className);
+  for (let box of checkboxes) {
+    if (box !== event.target) {
+      box.checked = false;
+    }
+  }
+}
+
 function copyToClipboard(id) {
   const text = document.getElementById(id).innerText;
   navigator.clipboard.writeText(text).then(() => {
@@ -139,16 +148,16 @@ function copyToClipboard(id) {
 
           <label>Room:</label>
           <div class="checkbox-row">
-            <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}">A5</label>
-            <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}">A6</label>
+	  <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A5</label>
+	  <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A6</label>
           </div>
           
           <label>Bed #:</label>
           <div class="checkbox-row">
-            <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}">1</label>
-            <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}">2</label>
-            <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}">3</label>
-            <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}">4</label>
+          <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">1</label>
+	  <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">2</label>
+	  <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">3</label>
+	  <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">4</label>
           </div>
 
 
