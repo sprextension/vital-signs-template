@@ -163,19 +163,19 @@ function copyToClipboard(id) {
           <input type="text" id="name${i}">
 
           <label>BP (mmHg):</label>
-          <input type="text" id="bp${i}">
+          <input type="number" placeholder="e.g. 120/80" id="bp${i}">
 
           <label>HR (bpm):</label>
-          <input type="text" id="hr${i}">
+          <input type="number" placeholder="e.g. 80" id="hr${i}">
 
           <label>RR (/min):</label>
-          <input type="text" id="rr${i}">
+          <input type="number" placeholder="e.g. 18" id="rr${i}">
 
           <label>Temp (°C):</label>
-          <input type="text" id="temp${i}">
+          <input type="text" placeholder="e.g. 36.5" id="temp${i}">
 
           <label>O₂ Saturation (%):</label>
-          <input type="text" id="spo2${i}">
+          <input type="number" placeholder="e.g. 100" id="spo2${i}">
 
           <label>GCS (optional):</label>
           <input type="number" placeholder="Eye (E)" id="gcs_e${i}" min="1" max="4">
@@ -284,3 +284,4 @@ function generateAllMessages() {
   </script>
 </body>
 </html>
+
