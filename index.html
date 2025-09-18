@@ -163,14 +163,19 @@ function copyToClipboard(id) {
           <input type="text" id="name${i}">
 
           <label>BP (mmHg):</label>
-          <input type="number" placeholder="e.g. 120/80" id="bp${i}">
+		  <div style="display: flex; align-items: center; gap: 5px;">
+		  <input type="number" placeholder="Sys" id="bp_sys${i}" style="flex: 1;">
+		  <span>/</span>
+		  <input type="number" placeholder="Dia" id="bp_dia${i}" style="flex: 1;">
+		  </div>
+
 
           <label>HR (bpm):</label>
           <input type="number" placeholder="e.g. 80" id="hr${i}">
 
           <label>RR (/min):</label>
           <input type="number" placeholder="e.g. 18" id="rr${i}">
-	  <label><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
+	 	  <label><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
 
 
           <label>Temp (°C):</label>
@@ -223,7 +228,9 @@ function generateAllMessages() {
     bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
 
     const name = document.getElementById(`name${i}`).value || 'N/A';
-    const bp = document.getElementById(`bp${i}`).value || 'N/A';
+    const bp_sys = document.getElementById(`bp_sys${i}`).value;
+	const bp_dia = document.getElementById(`bp_dia${i}`).value;
+	const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
     const hr = document.getElementById(`hr${i}`).value || 'N/A';
     const rr = document.getElementById(`rr${i}`).value || 'N/A';
     const isMV = document.getElementById(`mv${i}`).checked;
@@ -288,3 +295,4 @@ function generateAllMessages() {
   </script>
 </body>
 </html>
+
