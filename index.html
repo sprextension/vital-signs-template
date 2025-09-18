@@ -128,10 +128,19 @@
           <h3>Patient ${i}</h3>
 
           <label>Room:</label>
-          <input type="text" id="room${i}" placeholder="e.g. A5">
-
+          <div class="checkbox-row">
+            <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}">A5</label>
+            <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}">A6</label>
+          </div>
+          
           <label>Bed #:</label>
-          <input type="number" id="bednum${i}" placeholder="e.g. 1" min="1">
+          <div class="checkbox-row">
+            <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}">1</label>
+            <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}">2</label>
+            <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}">3</label>
+            <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}">4</label>
+          </div>
+
 
           <label>Patient Categories:</label>
           <div class="checkbox-row">
@@ -184,8 +193,21 @@
         if (document.getElementById(`cat_pedia${i}`).checked) categories.push('Pedia');
         if (document.getElementById(`cat_icu${i}`).checked) categories.push('ICU');
 
-        const room = document.getElementById(`room${i}`).value || 'Unknown Room';
-        const bedNum = document.getElementById(`bednum${i}`).value || 'Unknown Bed';
+        // Get selected room (allowing only one room to be selected)
+        const roomBoxes = document.querySelectorAll(`.room-checkbox${i}`);
+        let room = 'Unknown Room';
+        roomBoxes.forEach(box => {
+          if (box.checked) room = box.value;
+        });
+        
+        // Get selected bed numbers (can be multiple)
+        const bedBoxes = document.querySelectorAll(`.bed-checkbox${i}`);
+        let bedNum = [];
+        bedBoxes.forEach(box => {
+          if (box.checked) bedNum.push(box.value);
+        });
+        bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
+
         const name = document.getElementById(`name${i}`).value || 'N/A';
         const bp = document.getElementById(`bp${i}`).value || 'N/A';
         const hr = document.getElementById(`hr${i}`).value || 'N/A';
