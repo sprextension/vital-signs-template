@@ -322,46 +322,51 @@ function generateAllMessages() {
   });
     }
 
+function randomInRange(min, max, decimal = 0) {
+  const val = Math.random() * (max - min) + min;
+  return decimal > 0 ? val.toFixed(decimal) : Math.round(val);
+}
 	  function applyTemplate(template, i) {
   switch(template) {
     case "normalAdult":
-      document.getElementById(`bp_sys${i}`).value = 120;
-      document.getElementById(`bp_dia${i}`).value = 80;
-      document.getElementById(`hr${i}`).value = 80;
-      document.getElementById(`rr${i}`).value = 18;
-      document.getElementById(`temp${i}`).value = 36.8;
-      document.getElementById(`spo2${i}`).value = 98;
+      document.getElementById(`bp_sys${i}`).value = randomInRange(110, 130);
+      document.getElementById(`bp_dia${i}`).value = randomInRange(70, 85);
+      document.getElementById(`hr${i}`).value = randomInRange(60, 100);
+      document.getElementById(`rr${i}`).value = randomInRange(12, 20);
+      document.getElementById(`temp${i}`).value = randomInRange(36.5, 37.3, 1);
+      document.getElementById(`spo2${i}`).value = randomInRange(96, 100);
       break;
 
     case "normalPedia":
-      document.getElementById(`bp_sys${i}`).value = 100;
-      document.getElementById(`bp_dia${i}`).value = 70;
-      document.getElementById(`hr${i}`).value = 100;
-      document.getElementById(`rr${i}`).value = 24;
-      document.getElementById(`temp${i}`).value = 37.0;
-      document.getElementById(`spo2${i}`).value = 99;
+      document.getElementById(`bp_sys${i}`).value = randomInRange(90, 110);
+      document.getElementById(`bp_dia${i}`).value = randomInRange(60, 75);
+      document.getElementById(`hr${i}`).value = randomInRange(80, 120);
+      document.getElementById(`rr${i}`).value = randomInRange(20, 30);
+      document.getElementById(`temp${i}`).value = randomInRange(36.5, 37.5, 1);
+      document.getElementById(`spo2${i}`).value = randomInRange(97, 100);
       break;
 
     case "lowBP":
-      document.getElementById(`bp_sys${i}`).value = 80;
-      document.getElementById(`bp_dia${i}`).value = 50;
-      document.getElementById(`hr${i}`).value = 120;
-      document.getElementById(`rr${i}`).value = 28;
-      document.getElementById(`temp${i}`).value = 36.5;
-      document.getElementById(`spo2${i}`).value = 90;
+      document.getElementById(`bp_sys${i}`).value = randomInRange(70, 90);
+      document.getElementById(`bp_dia${i}`).value = randomInRange(40, 60);
+      document.getElementById(`hr${i}`).value = randomInRange(110, 140);
+      document.getElementById(`rr${i}`).value = randomInRange(22, 30);
+      document.getElementById(`temp${i}`).value = randomInRange(36.0, 37.0, 1);
+      document.getElementById(`spo2${i}`).value = randomInRange(85, 92);
       break;
 
-	case "highBP":
-      document.getElementById(`bp_sys${i}`).value = 160;
-      document.getElementById(`bp_dia${i}`).value = 100;
-      document.getElementById(`hr${i}`).value = 90;
-      document.getElementById(`rr${i}`).value = 20;
-      document.getElementById(`temp${i}`).value = 36.9;
-      document.getElementById(`spo2${i}`).value = 97;
+    case "highBP":
+      document.getElementById(`bp_sys${i}`).value = randomInRange(150, 170);
+      document.getElementById(`bp_dia${i}`).value = randomInRange(95, 110);
+      document.getElementById(`hr${i}`).value = randomInRange(80, 100);
+      document.getElementById(`rr${i}`).value = randomInRange(16, 22);
+      document.getElementById(`temp${i}`).value = randomInRange(36.5, 37.2, 1);
+      document.getElementById(`spo2${i}`).value = randomInRange(95, 99);
       break;
   }
-}	  
+}
   </script>
 </body>
 </html>
+
 
