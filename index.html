@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vital Signs Formatter</title>
@@ -99,22 +98,23 @@
 
   <label for="bedCount">How many beds are occupied?</label>
   <select id="bedCount" onchange="generateBedForms()">
-    <option value="">Select...</option>
-    <option value="1">1 bed</option>
-    <option value="2">2 beds</option>
-    <option value="3">3 beds</option>
-    <option value="4">4 beds</option>
-    <option value="5">5 beds</option>
-    <option value="6">6 beds</option>
-    <option value="7">7 beds</option>
-    <option value="8">8 beds</option>
-    <option value="9">9 beds</option>
-    <option value="10">10 beds</option>
-    <option value="11">11 beds</option>
-    <option value="12">12 beds</option>
-    <option value="13">13 beds</option>
-    <option value="14">14 beds</option>
-  </select>
+  <option value="">Select...</option>
+  <option value="1">1 bed</option>
+  <option value="2">2 beds</option>
+  <option value="3">3 beds</option>
+  <option value="4">4 beds</option>
+  <option value="5">5 beds</option>
+  <option value="6">6 beds</option>
+  <option value="7">7 beds</option>
+  <option value="8">8 beds</option>
+  <option value="9">9 beds</option>
+  <option value="10">10 beds</option>
+  <option value="11">11 beds</option>
+  <option value="12">12 beds</option>
+  <option value="13">13 beds</option>
+  <option value="14">14 beds</option>
+</select>
+
 
   <div id="bedsContainer"></div>
 
@@ -122,43 +122,7 @@
 
   <div id="output"></div>
 
-  <canvas id="vitalChart" width="600" height="300"></canvas>
-
-  const labels = patientData.map((p, idx) => "T" + (idx+1)); // timepoints
-  const temps = patientData.map(p => parseFloat(p.temp) || null);
-  const hr = patientData.map(p => parseFloat(p.hr) || null);
-  const rr = patientData.map(p => parseFloat(p.rr) || null);
-
-  if (chart) chart.destroy(); // reset if already exists
-
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'Temp (°C)', data: temps, borderColor: 'red', yAxisID: 'y1' },
-        { label: 'HR (bpm)', data: hr, borderColor: 'blue', yAxisID: 'y2' },
-        { label: 'RR (/min)', data: rr, borderColor: 'green', yAxisID: 'y2' }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y1: {
-          type: 'linear',
-          position: 'left',
-          title: { display: true, text: 'Temperature (°C)' },
-          min: 35, max: 41
-        },
-        y2: {
-          type: 'linear',
-          position: 'right',
-          title: { display: true, text: 'HR / RR' }
-        }
-      }
-    }
-  });
-}
+  <script>
 
 function handleSingleCheck(event, className) {
   const checkboxes = document.getElementsByClassName(className);
@@ -178,128 +142,90 @@ function copyToClipboard(id) {
   });
 }
 
-function generateBedForms() {
-  const container = document.getElementById('bedsContainer');
-  container.innerHTML = '';
-  const count = parseInt(document.getElementById('bedCount').value);
+    function generateBedForms() {
+      const container = document.getElementById('bedsContainer');
+      container.innerHTML = '';
+      const count = parseInt(document.getElementById('bedCount').value);
 
-  for (let i = 1; i <= count; i++) {
-    const div = document.createElement('div');
-    div.className = 'bed-container';
-    div.innerHTML = `
-      <h3>Patient ${i}</h3>
+      for (let i = 1; i <= count; i++) {
+        const div = document.createElement('div');
+        div.className = 'bed-container';
+        div.innerHTML = `
+          <h3>Patient ${i}</h3>
 
-      <label>Room:</label>
-      <div class="checkbox-row">
-        <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A3</label>
-        <label><input type="checkbox" name="room${i}" value="A4" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A4</label>
-        <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A5</label>
-        <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A6</label>
-      </div>
+	<label>Room:</label>
+	<div class="checkbox-row">
+  	  <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A3</label>
+  	  <label><input type="checkbox" name="room${i}" value="A4" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A4</label>
+  	  <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A5</label>
+  	  <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A6</label>
+	</div>
 
-      <label>Bed #:</label>
-      <div class="checkbox-row">
-        <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">1</label>
-        <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">2</label>
-        <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">3</label>
-        <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">4</label>
-      </div>
+          
+          <label>Bed #:</label>
+          <div class="checkbox-row">
+          <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">1</label>
+	  <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">2</label>
+	  <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">3</label>
+	  <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">4</label>
+          </div>
 
-      <label>Patient Categories:</label>
-      <div class="checkbox-row">
-        <label><input type="checkbox" id="cat_surgery${i}">Surgery</label>
-        <label><input type="checkbox" id="cat_pedia${i}">Pedia</label>
-        <label><input type="checkbox" id="cat_icu${i}">ICU</label>
-      </div>
 
-      <label>Patient Name:</label>
-      <input type="text" id="name${i}">
+          <label>Patient Categories:</label>
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="cat_surgery${i}">Surgery</label>
+            <label><input type="checkbox" id="cat_pedia${i}">Pedia</label>
+            <label><input type="checkbox" id="cat_icu${i}">ICU</label>
+          </div>
 
-      <label>BP (mmHg):</label>
-      <div style="display: flex; align-items: center; gap: 5px;">
-        <input type="number" placeholder="Sys" id="bp_sys${i}" style="flex: 1;">
-        <span>/</span>
-        <input type="number" placeholder="Dia" id="bp_dia${i}" style="flex: 1;">
-      </div>
+          <label>Patient Name:</label>
+          <input type="text" id="name${i}">
 
-      <label>HR (bpm):</label>
-      <input type="number" placeholder="e.g. 80" id="hr${i}">
+          <label>BP (mmHg):</label>
+		  <div style="display: flex; align-items: center; gap: 5px;">
+		  <input type="number" placeholder="Sys" id="bp_sys${i}" style="flex: 1;">
+		  <span>/</span>
+		  <input type="number" placeholder="Dia" id="bp_dia${i}" style="flex: 1;">
+		  </div>
 
-      <label>RR (/min):</label>
-      <input type="number" placeholder="e.g. 18" id="rr${i}">
-      <label><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
 
-      <label>Temp (°C):</label>
-      <input type="text" placeholder="e.g. 36.5" id="temp${i}">
+          <label>HR (bpm):</label>
+          <input type="number" placeholder="e.g. 80" id="hr${i}">
 
-      <label>O₂ Saturation (%):</label>
-      <input type="number" placeholder="e.g. 100" id="spo2${i}">
+          <label>RR (/min):</label>
+          <input type="number" placeholder="e.g. 18" id="rr${i}">
+	 	  <label><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
 
-      <label>GCS (optional):</label>
-      <input type="number" placeholder="Eye (E)" id="gcs_e${i}" min="1" max="4">
-      <input type="number" placeholder="Verbal (V)" id="gcs_v${i}" min="1" max="5">
-      <input type="number" placeholder="Motor (M)" id="gcs_m${i}" min="1" max="6">
-      <input type="number" placeholder="Total (optional)" id="gcs_total${i}">
 
-      <label>RBS (optional):</label>
-      <input type="text" id="rbs${i}">
+          <label>Temp (°C):</label>
+          <input type="text" placeholder="e.g. 36.5" id="temp${i}">
 
-      <label>Bowel Movement (BM) - optional:</label>
-      <input type="text" id="bm${i}">
+          <label>O₂ Saturation (%):</label>
+          <input type="number" placeholder="e.g. 100" id="spo2${i}">
 
-      <label>Urine Output (UO) - optional:</label>
-      <input type="text" id="uo${i}">
-    `;
-    container.appendChild(div);
-  }
-}
+          <label>GCS (optional):</label>
+          <input type="number" placeholder="Eye (E)" id="gcs_e${i}" min="1" max="4">
+          <input type="number" placeholder="Verbal (V)" id="gcs_v${i}" min="1" max="5">
+          <input type="number" placeholder="Motor (M)" id="gcs_m${i}" min="1" max="6">
+          <input type="number" placeholder="Total (optional)" id="gcs_total${i}">
 
-<script>
-let chart; // store chart instance so it can update
+<label>RBS (optional):</label>
+<input type="text" id="rbs${i}">
 
-function plotVitals(patientData) {
-  const ctx = document.getElementById('vitalChart').getContext('2d');
+<label>Bowel Movement (BM) - optional:</label>
+<input type="text" id="bm${i}">
 
-  const labels = patientData.map((p, idx) => "T" + (idx+1)); // timepoints
-  const temps = patientData.map(p => parseFloat(p.temp) || null);
-  const hr = patientData.map(p => parseFloat(p.hr) || null);
-  const rr = patientData.map(p => parseFloat(p.rr) || null);
+<label>Urine Output (UO) - optional:</label>
+<input type="text" id="uo${i}">
 
-  if (chart) chart.destroy(); // reset if already exists
-
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'Temp (°C)', data: temps, borderColor: 'red', yAxisID: 'y1' },
-        { label: 'HR (bpm)', data: hr, borderColor: 'blue', yAxisID: 'y2' },
-        { label: 'RR (/min)', data: rr, borderColor: 'green', yAxisID: 'y2' }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y1: {
-          type: 'linear',
-          position: 'left',
-          title: { display: true, text: 'Temperature (°C)' },
-          min: 35, max: 41
-        },
-        y2: {
-          type: 'linear',
-          position: 'right',
-          title: { display: true, text: 'HR / RR' }
-        }
+        `;
+        container.appendChild(div);
       }
     }
-  });
-}
 
 function generateAllMessages() {
   const count = parseInt(document.getElementById('bedCount').value);
   let messages = { 'Surgery': '', 'Pedia': '', 'ICU': '' };
-  let collectedVitals = [];
 
   for (let i = 1; i <= count; i++) {
     const categories = [];
@@ -322,8 +248,8 @@ function generateAllMessages() {
 
     const name = document.getElementById(`name${i}`).value || 'N/A';
     const bp_sys = document.getElementById(`bp_sys${i}`).value;
-    const bp_dia = document.getElementById(`bp_dia${i}`).value;
-    const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
+	const bp_dia = document.getElementById(`bp_dia${i}`).value;
+	const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
     const hr = document.getElementById(`hr${i}`).value || 'N/A';
     const rr = document.getElementById(`rr${i}`).value || 'N/A';
     const isMV = document.getElementById(`mv${i}`).checked;
@@ -367,12 +293,8 @@ function generateAllMessages() {
     categories.forEach(cat => {
       messages[cat] += message;
     });
-
-    // Collect vitals for chart
-    collectedVitals.push({ hr, rr, temp });
   }
 
-  // Render patient messages
   const outputContainer = document.getElementById('output');
   outputContainer.innerHTML = '';
 
@@ -388,11 +310,7 @@ function generateAllMessages() {
       `;
     }
   });
-
-  // Plot chart at the very end
-  plotVitals(collectedVitals);
-}
-</script>
+    }
+  </script>
 </body>
 </html>
-
