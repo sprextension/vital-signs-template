@@ -98,16 +98,23 @@
 
   <label for="bedCount">How many beds are occupied?</label>
   <select id="bedCount" onchange="generateBedForms()">
-    <option value="">Select...</option>
-    <option value="1">1 bed</option>
-    <option value="2">2 beds</option>
-    <option value="3">3 beds</option>
-    <option value="4">4 beds</option>
-    <option value="5">5 beds</option>
-    <option value="6">6 beds</option>
-    <option value="7">7 beds</option>
-    <option value="8">8 beds</option>
-  </select>
+  <option value="">Select...</option>
+  <option value="1">1 bed</option>
+  <option value="2">2 beds</option>
+  <option value="3">3 beds</option>
+  <option value="4">4 beds</option>
+  <option value="5">5 beds</option>
+  <option value="6">6 beds</option>
+  <option value="7">7 beds</option>
+  <option value="8">8 beds</option>
+  <option value="9">9 beds</option>
+  <option value="10">10 beds</option>
+  <option value="11">11 beds</option>
+  <option value="12">12 beds</option>
+  <option value="13">13 beds</option>
+  <option value="14">14 beds</option>
+</select>
+
 
   <div id="bedsContainer"></div>
 
@@ -146,11 +153,14 @@ function copyToClipboard(id) {
         div.innerHTML = `
           <h3>Patient ${i}</h3>
 
-          <label>Room:</label>
-          <div class="checkbox-row">
-	  <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A5</label>
-	  <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A6</label>
-          </div>
+	<label>Room:</label>
+	<div class="checkbox-row">
+  	  <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A3</label>
+  	  <label><input type="checkbox" name="room${i}" value="A4" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A4</label>
+  	  <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A5</label>
+  	  <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A6</label>
+	</div>
+
           
           <label>Bed #:</label>
           <div class="checkbox-row">
@@ -188,7 +198,7 @@ function copyToClipboard(id) {
 
 
           <label>Temp (°C):</label>
-          <input type="number" placeholder="e.g. 36.5" id="temp${i}">
+          <input type="text" placeholder="e.g. 36.5" id="temp${i}">
 
           <label>O₂ Saturation (%):</label>
           <input type="number" placeholder="e.g. 100" id="spo2${i}">
@@ -304,5 +314,4 @@ function generateAllMessages() {
   </script>
 </body>
 </html>
-
 
