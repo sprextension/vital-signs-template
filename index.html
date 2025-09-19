@@ -153,6 +153,16 @@ function copyToClipboard(id) {
         div.innerHTML = `
           <h3>Patient ${i}</h3>
 
+	<label>Quick Fill Template:</label>
+	<select onchange="applyTemplate(this.value, ${i})">
+	  <option value="">-- Select Template --</option>
+	  <option value="normalAdult">Normal Adult</option>
+	  <option value="normalPedia">Normal Pedia</option>
+	  <option value="lowBP">Low BP</option>
+	  <option value="highBP">High BP</option>
+	</select>
+
+
 	<label>Room:</label>
 	<div class="checkbox-row">
   	  <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A3</label>
@@ -311,6 +321,47 @@ function generateAllMessages() {
     }
   });
     }
+
+	  function applyTemplate(template, i) {
+  switch(template) {
+    case "normalAdult":
+      document.getElementById(`bp_sys${i}`).value = 120;
+      document.getElementById(`bp_dia${i}`).value = 80;
+      document.getElementById(`hr${i}`).value = 80;
+      document.getElementById(`rr${i}`).value = 18;
+      document.getElementById(`temp${i}`).value = 36.8;
+      document.getElementById(`spo2${i}`).value = 98;
+      break;
+
+    case "normalPedia":
+      document.getElementById(`bp_sys${i}`).value = 100;
+      document.getElementById(`bp_dia${i}`).value = 70;
+      document.getElementById(`hr${i}`).value = 100;
+      document.getElementById(`rr${i}`).value = 24;
+      document.getElementById(`temp${i}`).value = 37.0;
+      document.getElementById(`spo2${i}`).value = 99;
+      break;
+
+    case "lowBP":
+      document.getElementById(`bp_sys${i}`).value = 80;
+      document.getElementById(`bp_dia${i}`).value = 50;
+      document.getElementById(`hr${i}`).value = 120;
+      document.getElementById(`rr${i}`).value = 28;
+      document.getElementById(`temp${i}`).value = 36.5;
+      document.getElementById(`spo2${i}`).value = 90;
+      break;
+
+	case "highBP":
+      document.getElementById(`bp_sys${i}`).value = 160;
+      document.getElementById(`bp_dia${i}`).value = 100;
+      document.getElementById(`hr${i}`).value = 90;
+      document.getElementById(`rr${i}`).value = 20;
+      document.getElementById(`temp${i}`).value = 36.9;
+      document.getElementById(`spo2${i}`).value = 97;
+      break;
+  }
+}	  
   </script>
 </body>
 </html>
+
