@@ -124,12 +124,6 @@
 
   <canvas id="vitalChart" width="600" height="300"></canvas>
 
-  <script>
-let chart; // store chart instance so it can update
-
-function plotVitals(patientData) {
-  const ctx = document.getElementById('vitalChart').getContext('2d');
-
   const labels = patientData.map((p, idx) => "T" + (idx+1)); // timepoints
   const temps = patientData.map(p => parseFloat(p.temp) || null);
   const hr = patientData.map(p => parseFloat(p.hr) || null);
@@ -260,6 +254,48 @@ function generateBedForms() {
   }
 }
 
+<script>
+let chart; // store chart instance so it can update
+
+function plotVitals(patientData) {
+  const ctx = document.getElementById('vitalChart').getContext('2d');
+
+  const labels = patientData.map((p, idx) => "T" + (idx+1)); // timepoints
+  const temps = patientData.map(p => parseFloat(p.temp) || null);
+  const hr = patientData.map(p => parseFloat(p.hr) || null);
+  const rr = patientData.map(p => parseFloat(p.rr) || null);
+
+  if (chart) chart.destroy(); // reset if already exists
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Temp (°C)', data: temps, borderColor: 'red', yAxisID: 'y1' },
+        { label: 'HR (bpm)', data: hr, borderColor: 'blue', yAxisID: 'y2' },
+        { label: 'RR (/min)', data: rr, borderColor: 'green', yAxisID: 'y2' }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y1: {
+          type: 'linear',
+          position: 'left',
+          title: { display: true, text: 'Temperature (°C)' },
+          min: 35, max: 41
+        },
+        y2: {
+          type: 'linear',
+          position: 'right',
+          title: { display: true, text: 'HR / RR' }
+        }
+      }
+    }
+  });
+}
+
 function generateAllMessages() {
   const count = parseInt(document.getElementById('bedCount').value);
   let messages = { 'Surgery': '', 'Pedia': '', 'ICU': '' };
@@ -353,9 +389,10 @@ function generateAllMessages() {
     }
   });
 
-  // Plot chart
+  // Plot chart at the very end
   plotVitals(collectedVitals);
 }
 </script>
 </body>
 </html>
+
