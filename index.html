@@ -154,14 +154,16 @@ function copyToClipboard(id) {
           <h3>Patient ${i}</h3>
 
 	<label>Quick Fill Template:</label>
-	<select onchange="applyTemplate(this.value, ${i})">
-	  <option value="">-- Select Template --</option>
-	  <option value="normalAdult">Normal Adult</option>
-	  <option value="normalPedia">Normal Pedia</option>
-	  <option value="lowBP">Low BP</option>
-	  <option value="highBP">High BP</option>
-	</select>
-
+	<div style="display: flex; gap: 8px;">
+	  <select id="template${i}" onchange="applyTemplate(this.value, ${i})" style="flex: 1;">
+	    <option value="">-- Select Template --</option>
+	    <option value="normalAdult">Normal Adult</option>
+	    <option value="normalPedia">Normal Pedia</option>
+	    <option value="lowBP">Critical Low BP</option>
+	    <option value="highBP">High BP</option>
+	  </select>
+	  <button type="button" onclick="rerandomize(${i})">🔄</button>
+	</div>
 
 	<label>Room:</label>
 	<div class="checkbox-row">
@@ -368,5 +370,6 @@ function randomInRange(min, max, decimal = 0) {
   </script>
 </body>
 </html>
+
 
 
