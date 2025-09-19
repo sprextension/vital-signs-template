@@ -367,9 +367,20 @@ function randomInRange(min, max, decimal = 0) {
       break;
   }
 }
+
+function rerandomize(i) {
+  const template = document.getElementById(`template${i}`).value;
+  if (template) {
+    applyTemplate(template, i);
+  } else {
+    alert("Please select a template first!");
+  }
+}
+
   </script>
 </body>
 </html>
+
 
 
 
