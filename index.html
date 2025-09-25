@@ -1,105 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Vital Signs Formatter</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
-      margin: 0;
-      padding: 20px;
+    :root{
+      --card-bg:#fff;
+      --page-bg:#f4f6f8;
+      --accent:#3498db;
+      --accent-dark:#2980b9;
+      --muted:#eef1f5;
+      --text:#2c3e50;
     }
 
-    h2 {
-      text-align: center;
-      color: #2c3e50;
-      margin-bottom: 20px;
+    body{
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--page-bg);
+      margin:0;
+      padding:20px;
+      color:var(--text);
     }
 
-    label {
-      font-weight: 600;
-      display: block;
-      margin-top: 10px;
+    h2{ text-align:center; color:var(--text); margin-bottom:18px; }
+
+    label{ font-weight:600; display:block; margin-top:10px; }
+
+    /* form layout */
+    .bed-container{
+      background: var(--card-bg);
+      padding:16px;
+      border-radius:10px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.05);
+      border:1px solid #ddd;
+      margin-bottom:18px;
     }
 
-	select {
-	  font-size: 13px;
-	  padding: 3px 6px;
-	  width: 140px;   /* smaller width */
-	}
-	
-	button {
-	  font-size: 13px;
-	  padding: 4px 8px;
-	}
+    .bed-container h3{ margin:0 0 8px 0; color:#34495e; font-size:18px; }
 
-    select, input {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0 12px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      box-sizing: border-box;
+    .checkbox-row{ display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 12px 0; }
+
+    /* default inputs full width, but some controls sized smaller via classes */
+    input[type="text"], input[type="number"], select{
+      width:100%;
+      padding:10px;
+      margin:6px 0 12px 0;
+      border:1px solid #ccc;
+      border-radius:6px;
+      box-sizing:border-box;
+      font-size:14px;
     }
 
-    input[type="checkbox"] {
-      width: auto;
-      margin-right: 5px;
+    /* Template control sizing */
+    .template-row{ display:flex; gap:8px; align-items:center; margin-top:6px; }
+    .template-select{ width:160px; padding:6px; font-size:13px; }
+    .small-btn{
+      padding:6px 8px;
+      font-size:13px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      background:#fff;
+      cursor:pointer;
+      min-width:40px;
     }
+    .small-btn:active{ transform:translateY(1px); }
 
-    .checkbox-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    /* primary action button */
+    .primary-button{
+      width:100%;
+      padding:12px;
+      font-size:16px;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      margin-top:10px;
     }
+    .primary-button:hover{ background:var(--accent-dark); }
 
-    .bed-container {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-    }
-
-    .bed-container h3 {
-      margin-top: 0;
-      color: #34495e;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      background-color: #3498db;
-      color: white;
+    /* Copy button near outputs */
+    .copy-btn{
+      padding:6px 8px;
+      font-size:13px;
+      border-radius:6px;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      background:#2ecc71;
+      color:#fff;
+      cursor:pointer;
+      margin-bottom:8px;
     }
 
-    button:hover {
-      background-color: #2980b9;
+    pre{
+      background:var(--muted);
+      padding:12px;
+      border-radius:8px;
+      white-space:pre-wrap;
+      overflow-x:auto;
+      font-size:14px;
     }
 
-    pre {
-      background-color: #eef1f5;
-      padding: 15px;
-      border-radius: 8px;
-      white-space: pre-wrap;
-      overflow-x: auto;
-      margin-top: 30px;
-      font-size: 14px;
-    }
-
-    @media (min-width: 600px) {
-      .bed-container, button, pre {
-        max-width: 600px;
-        margin: 0 auto 20px auto;
-      }
+    @media(min-width:600px){
+      .bed-container, .primary-button, pre{ max-width:720px; margin:0 auto 18px auto; }
     }
   </style>
 </head>
@@ -109,324 +111,435 @@
 
   <label for="bedCount">How many beds are occupied?</label>
   <select id="bedCount" onchange="generateBedForms()">
-  <option value="">Select...</option>
-  <option value="1">1 bed</option>
-  <option value="2">2 beds</option>
-  <option value="3">3 beds</option>
-  <option value="4">4 beds</option>
-  <option value="5">5 beds</option>
-  <option value="6">6 beds</option>
-  <option value="7">7 beds</option>
-  <option value="8">8 beds</option>
-  <option value="9">9 beds</option>
-  <option value="10">10 beds</option>
-  <option value="11">11 beds</option>
-  <option value="12">12 beds</option>
-  <option value="13">13 beds</option>
-  <option value="14">14 beds</option>
-</select>
-
+    <option value="">Select...</option>
+    <option value="1">1 bed</option><option value="2">2 beds</option><option value="3">3 beds</option>
+    <option value="4">4 beds</option><option value="5">5 beds</option><option value="6">6 beds</option>
+    <option value="7">7 beds</option><option value="8">8 beds</option><option value="9">9 beds</option>
+    <option value="10">10 beds</option><option value="11">11 beds</option><option value="12">12 beds</option>
+    <option value="13">13 beds</option><option value="14">14 beds</option>
+  </select>
 
   <div id="bedsContainer"></div>
 
-  <button onclick="generateAllMessages()">Generate Message</button>
+  <button class="primary-button" onclick="generateAllMessages()">Generate Message</button>
 
   <div id="output"></div>
 
   <script>
+  /* ------------------------------
+     Utility & UI helpers
+     ------------------------------ */
 
-function handleSingleCheck(event, className) {
-  const checkboxes = document.getElementsByClassName(className);
-  for (let box of checkboxes) {
-    if (box !== event.target) {
-      box.checked = false;
+  // Keep only one checked per class (used by room/bed checkboxes)
+  function handleSingleCheck(event, className) {
+    const checkboxes = document.getElementsByClassName(className);
+    for (let box of checkboxes) {
+      if (box !== event.target) box.checked = false;
     }
   }
-}
 
-function copyToClipboard(id) {
-  const text = document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Copied to clipboard!');
-  }, (err) => {
-    alert('Failed to copy text: ' + err);
-  });
-}
-
-    function generateBedForms() {
-      const container = document.getElementById('bedsContainer');
-      container.innerHTML = '';
-      const count = parseInt(document.getElementById('bedCount').value);
-	  const saved = localStorage.getItem(`bed${i}`);
-		if (saved) {
- 		const data = JSON.parse(saved);
-		  document.getElementById(`patient${i}`).value = data.patient || "";
-		if (data.bp) {
-		const [sys, dia] = data.bp.split("/");
-		  document.getElementById(`bp_sys${i}`).value = sys;
-		  document.getElementById(`bp_dia${i}`).value = dia;
-		  }
-		  document.getElementById(`hr${i}`).value = data.hr || "";
-		  document.getElementById(`rr${i}`).value = data.rr || "";
-		  document.getElementById(`temp${i}`).value = data.temp || "";
-		  document.getElementById(`spo2${i}`).value = data.spo2 || "";
-		}
-
-      for (let i = 1; i <= count; i++) {
-        const div = document.createElement('div');
-        div.className = 'bed-container';
-        div.innerHTML = `
-          <h3>Patient ${i}</h3>
-
-	<label>Quick Fill Template:</label>
-	<div style="display: flex; gap: 8px;">
-	  <select id="template${i}" onchange="applyTemplate(this.value, ${i})" style="flex: 1;">
-	    <option value="">-- Select Template --</option>
-	    <option value="normalAdult">Normal Adult</option>
-	    <option value="normalPedia">Normal Pedia</option>
-	    <option value="lowBP">Critical Low BP</option>
-	    <option value="highBP">High BP</option>
-	  </select>
-	  <button type="button" onclick="rerandomize(${i})">🔄</button>
-	</div>
-
-	<label>Room:</label>
-	<div class="checkbox-row">
-  	  <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A3</label>
-  	  <label><input type="checkbox" name="room${i}" value="A4" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A4</label>
-  	  <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A5</label>
-  	  <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')">A6</label>
-	</div>
-
-          
-          <label>Bed #:</label>
-          <div class="checkbox-row">
-          <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">1</label>
-	  <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">2</label>
-	  <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">3</label>
-	  <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')">4</label>
-          </div>
-
-
-          <label>Patient Categories:</label>
-          <div class="checkbox-row">
-            <label><input type="checkbox" id="cat_surgery${i}">Surgery</label>
-            <label><input type="checkbox" id="cat_pedia${i}">Pedia</label>
-            <label><input type="checkbox" id="cat_icu${i}">ICU</label>
-          </div>
-
-          <label>Patient Name:</label>
-          <input type="text" id="patient${i}" placeholder="Patient Name">
-
-          <label>BP (mmHg):</label>
-		  <div style="display: flex; align-items: center; gap: 5px;">
-		  <input type="number" placeholder="Sys" id="bp_sys${i}" style="flex: 1;">
-		  <span>/</span>
-		  <input type="number" placeholder="Dia" id="bp_dia${i}" style="flex: 1;">
-		  </div>
-
-
-          <label>HR (bpm):</label>
-          <input type="number" placeholder="e.g. 80" id="hr${i}">
-
-          <label>RR (/min):</label>
-          <input type="number" placeholder="e.g. 18" id="rr${i}">
-	 	  <label><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
-
-
-          <label>Temp (°C):</label>
-          <input type="text" placeholder="e.g. 36.5" id="temp${i}">
-
-          <label>O₂ Saturation (%):</label>
-          <input type="number" placeholder="e.g. 100" id="spo2${i}">
-
-          <label>GCS (optional):</label>
-          <input type="number" placeholder="Eye (E)" id="gcs_e${i}" min="1" max="4">
-          <input type="number" placeholder="Verbal (V)" id="gcs_v${i}" min="1" max="5">
-          <input type="number" placeholder="Motor (M)" id="gcs_m${i}" min="1" max="6">
-          <input type="number" placeholder="Total (optional)" id="gcs_total${i}">
-
-<label>RBS (optional):</label>
-<input type="text" id="rbs${i}">
-
-<label>Bowel Movement (BM) - optional:</label>
-<input type="text" id="bm${i}">
-
-<label>Urine Output (UO) - optional:</label>
-<input type="text" id="uo${i}">
-
-        `;
-        container.appendChild(div);
-      }
-    }
-
-function generateAllMessages() {
-  const count = parseInt(document.getElementById('bedCount').value);
-  let messages = { 'Surgery': '', 'Pedia': '', 'ICU': '' };
-
-  for (let i = 1; i <= count; i++) {
-    const categories = [];
-    if (document.getElementById(`cat_surgery${i}`).checked) categories.push('Surgery');
-    if (document.getElementById(`cat_pedia${i}`).checked) categories.push('Pedia');
-    if (document.getElementById(`cat_icu${i}`).checked) categories.push('ICU');
-
-    const roomBoxes = document.querySelectorAll(`.room-checkbox${i}`);
-    let room = 'Unknown Room';
-    roomBoxes.forEach(box => {
-      if (box.checked) room = box.value;
-    });
-
-    const bedBoxes = document.querySelectorAll(`.bed-checkbox${i}`);
-    let bedNum = [];
-    bedBoxes.forEach(box => {
-      if (box.checked) bedNum.push(box.value);
-    });
-    bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
-
-    const name = document.getElementById(`name${i}`).value || 'N/A';
-    const bp_sys = document.getElementById(`bp_sys${i}`).value;
-	const bp_dia = document.getElementById(`bp_dia${i}`).value;
-	const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
-    const hr = document.getElementById(`hr${i}`).value || 'N/A';
-    const rr = document.getElementById(`rr${i}`).value || 'N/A';
-    const isMV = document.getElementById(`mv${i}`).checked;
-    const finalRR = isMV ? 'MV' : rr;
-    const temp = document.getElementById(`temp${i}`).value || 'N/A';
-    const spo2 = document.getElementById(`spo2${i}`).value || 'N/A';
-
-    const gcs_e = parseInt(document.getElementById(`gcs_e${i}`).value) || 0;
-    const gcs_v = parseInt(document.getElementById(`gcs_v${i}`).value) || 0;
-    const gcs_m = parseInt(document.getElementById(`gcs_m${i}`).value) || 0;
-    const gcs_total_input = document.getElementById(`gcs_total${i}`).value;
-    const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
-
-    const rbs = document.getElementById(`rbs${i}`).value;
-    const bm = document.getElementById(`bm${i}`).value;
-    const uo = document.getElementById(`uo${i}`).value;
-
-    let message = `Room ${room} - Bed ${bedNum}\n` +
-                  `Patient: ${name}\n` +
-                  `BP: ${bp} \n` +
-                  `HR: ${hr} \n` +
-                  `RR: ${finalRR} \n` +
-                  `Temp: ${temp}\n` +
-                  `O₂: ${spo2}%\n`;
-
-    if (gcsFilled) {
-      const gcs_total = gcs_total_input
-        ? gcs_total_input
-        : (gcs_e + gcs_v + gcs_m > 0 ? gcs_e + gcs_v + gcs_m : 'N/A');
-      message += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
-    }
-
-    if (rbs) message += `RBS: ${rbs}\n`;
-    if (bm) message += `BM: ${bm}\n`;
-    if (uo) message += `UO: ${uo}\n`;
-
-    message += `\n`;
-
-    if (categories.length === 0) continue;
-
-    categories.forEach(cat => {
-      messages[cat] += message;
+  // Copy contents of pre to clipboard
+  function copyToClipboard(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Copied to clipboard!');
+    }).catch(err => {
+      alert('Failed to copy: ' + err);
     });
   }
 
-  const outputContainer = document.getElementById('output');
-  outputContainer.innerHTML = '';
-
-  ['Surgery', 'Pedia', 'ICU'].forEach(cat => {
-    if (messages[cat]) {
-      const sectionId = `msg_${cat}`;
-      outputContainer.innerHTML += `
-        <div class="category-section">
-          <h3>${cat} Patients</h3>
-          <button onclick="copyToClipboard('${sectionId}')">Copy ${cat} Section</button>
-          <pre id="${sectionId}">${messages[cat].trim()}</pre>
-        </div>
-      `;
-    }
-  });
-    }
-
-	  function saveBed(i) {
-  const patientName = document.getElementById(`patient${i}`).value;
-  const sys = document.getElementById(`bp_sys${i}`).value;
-  const dia = document.getElementById(`bp_dia${i}`).value;
-  const hr = document.getElementById(`hr${i}`).value;
-  const rr = document.getElementById(`rr${i}`).value;
-  const temp = document.getElementById(`temp${i}`).value;
-  const spo2 = document.getElementById(`spo2${i}`).value;
-
-  // Example: store in localStorage so it persists even if you refresh
-  localStorage.setItem(`bed${i}`, JSON.stringify({
-    patient: patientName,
-    bp: `${sys}/${dia}`,
-    hr,
-    rr,
-    temp,
-    spo2
-  }));
-}
-
-function randomInRange(min, max, decimal = 0) {
-  const val = Math.random() * (max - min) + min;
-  return decimal > 0 ? val.toFixed(decimal) : Math.round(val);
-}
-	  function applyTemplate(template, i) {
-  switch(template) {
-    case "normalAdult":
-      document.getElementById(`bp_sys${i}`).value = randomInRange(110, 130);
-      document.getElementById(`bp_dia${i}`).value = randomInRange(70, 85);
-      document.getElementById(`hr${i}`).value = randomInRange(60, 100);
-      document.getElementById(`rr${i}`).value = randomInRange(12, 20);
-      document.getElementById(`temp${i}`).value = randomInRange(36.5, 37.3, 1);
-      document.getElementById(`spo2${i}`).value = randomInRange(96, 100);
-      break;
-
-    case "normalPedia":
-      document.getElementById(`bp_sys${i}`).value = randomInRange(90, 110);
-      document.getElementById(`bp_dia${i}`).value = randomInRange(60, 75);
-      document.getElementById(`hr${i}`).value = randomInRange(80, 120);
-      document.getElementById(`rr${i}`).value = randomInRange(20, 30);
-      document.getElementById(`temp${i}`).value = randomInRange(36.5, 37.5, 1);
-      document.getElementById(`spo2${i}`).value = randomInRange(97, 100);
-      break;
-
-    case "lowBP":
-      document.getElementById(`bp_sys${i}`).value = randomInRange(70, 90);
-      document.getElementById(`bp_dia${i}`).value = randomInRange(40, 60);
-      document.getElementById(`hr${i}`).value = randomInRange(110, 140);
-      document.getElementById(`rr${i}`).value = randomInRange(22, 30);
-      document.getElementById(`temp${i}`).value = randomInRange(36.0, 37.0, 1);
-      document.getElementById(`spo2${i}`).value = randomInRange(85, 92);
-      break;
-
-    case "highBP":
-      document.getElementById(`bp_sys${i}`).value = randomInRange(150, 170);
-      document.getElementById(`bp_dia${i}`).value = randomInRange(95, 110);
-      document.getElementById(`hr${i}`).value = randomInRange(80, 100);
-      document.getElementById(`rr${i}`).value = randomInRange(16, 22);
-      document.getElementById(`temp${i}`).value = randomInRange(36.5, 37.2, 1);
-      document.getElementById(`spo2${i}`).value = randomInRange(95, 99);
-      break;
+  // random helper: integers unless decimal > 0
+  function randomInRange(min, max, decimal = 0) {
+    const val = Math.random() * (max - min) + min;
+    return decimal > 0 ? parseFloat(val.toFixed(decimal)) : Math.round(val);
   }
-}
 
-function rerandomize(i) {
-  const template = document.getElementById(`template${i}`).value;
-  if (template) {
+  /* ------------------------------
+     Templates + randomizer
+     ------------------------------ */
+
+  function applyTemplate(template, i) {
+    if (!template) return;
+    switch(template) {
+      case "normalAdult":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(110,130);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(70,85);
+        document.getElementById(`hr${i}`).value = randomInRange(60,100);
+        document.getElementById(`rr${i}`).value = randomInRange(12,20);
+        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.3,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(96,100);
+        break;
+
+      case "normalPedia":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(90,110);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(60,75);
+        document.getElementById(`hr${i}`).value = randomInRange(80,120);
+        document.getElementById(`rr${i}`).value = randomInRange(20,30);
+        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.5,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(97,100);
+        break;
+
+      case "lowBP":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(70,90);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(40,60);
+        document.getElementById(`hr${i}`).value = randomInRange(110,140);
+        document.getElementById(`rr${i}`).value = randomInRange(22,30);
+        document.getElementById(`temp${i}`).value = randomInRange(36.0,37.0,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(85,92);
+        break;
+
+      case "highBP":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(150,170);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(95,110);
+        document.getElementById(`hr${i}`).value = randomInRange(80,100);
+        document.getElementById(`rr${i}`).value = randomInRange(16,22);
+        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.2,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(95,99);
+        break;
+    }
+  }
+
+  function rerandomize(i) {
+    const template = document.getElementById(`template${i}`).value;
+    if (!template) {
+      alert('Please select a template first!');
+      return;
+    }
     applyTemplate(template, i);
-  } else {
-    alert("Please select a template first!");
+    saveBed(i);
   }
-}
+
+  /* ------------------------------
+     Persistence (auto-save)
+     ------------------------------ */
+
+  function saveBed(i) {
+    try {
+      const patient = (document.getElementById(`patient${i}`) || {}).value || "";
+      const sys = (document.getElementById(`bp_sys${i}`) || {}).value || "";
+      const dia = (document.getElementById(`bp_dia${i}`) || {}).value || "";
+      const hr = (document.getElementById(`hr${i}`) || {}).value || "";
+      const rr = (document.getElementById(`rr${i}`) || {}).value || "";
+      const mv = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
+      const temp = (document.getElementById(`temp${i}`) || {}).value || "";
+      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || "";
+      const gcs_e = (document.getElementById(`gcs_e${i}`) || {}).value || "";
+      const gcs_v = (document.getElementById(`gcs_v${i}`) || {}).value || "";
+      const gcs_m = (document.getElementById(`gcs_m${i}`) || {}).value || "";
+      const gcs_total = (document.getElementById(`gcs_total${i}`) || {}).value || "";
+      const rbs = (document.getElementById(`rbs${i}`) || {}).value || "";
+      const bm = (document.getElementById(`bm${i}`) || {}).value || "";
+      const uo = (document.getElementById(`uo${i}`) || {}).value || "";
+      const template = (document.getElementById(`template${i}`) || {}).value || "";
+
+      // single room/bed (we enforce single selection via handleSingleCheck)
+      let room = "";
+      document.querySelectorAll(`.room-checkbox${i}`).forEach(b => { if (b.checked) room = b.value; });
+
+      let bedNum = "";
+      document.querySelectorAll(`.bed-checkbox${i}`).forEach(b => { if (b.checked) bedNum = b.value; });
+
+      const categories = {
+        surgery: !!(document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked),
+        pedia: !!(document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked),
+        icu: !!(document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked)
+      };
+
+      const data = {
+        patient, sys, dia, hr, rr, mv, temp, spo2,
+        gcs_e, gcs_v, gcs_m, gcs_total,
+        rbs, bm, uo, room, bedNum, categories, template
+      };
+
+      localStorage.setItem(`bed${i}`, JSON.stringify(data));
+    } catch (err) {
+      console.error("saveBed error", err);
+    }
+  }
+
+  /* Attach auto-save listeners for a set of fields on bed i */
+  function attachAutoSave(i) {
+    const textFields = ["patient","bp_sys","bp_dia","hr","rr","temp","spo2","gcs_e","gcs_v","gcs_m","gcs_total","rbs","bm","uo"];
+    textFields.forEach(f => {
+      const el = document.getElementById(`${f}${i}`);
+      if (el) el.addEventListener('input', () => saveBed(i));
+    });
+
+    // checkboxes: room & bed & categories & mv
+    document.querySelectorAll(`.room-checkbox${i}`).forEach(cb => {
+      cb.addEventListener('change', (ev) => { handleSingleCheck(ev, `room-checkbox${i}`); saveBed(i); });
+    });
+    document.querySelectorAll(`.bed-checkbox${i}`).forEach(cb => {
+      cb.addEventListener('change', (ev) => { handleSingleCheck(ev, `bed-checkbox${i}`); saveBed(i); });
+    });
+    ["cat_surgery","cat_pedia","cat_icu"].forEach(base => {
+      const el = document.getElementById(`${base}${i}`);
+      if (el) el.addEventListener('change', () => saveBed(i));
+    });
+
+    const mv = document.getElementById(`mv${i}`);
+    if (mv) mv.addEventListener('change', () => {
+      const rrEl = document.getElementById(`rr${i}`);
+      if (mv.checked) {
+        // disable RR input if MV is checked and clear value
+        if (rrEl) { rrEl.value = ""; rrEl.disabled = true; }
+      } else {
+        if (rrEl) rrEl.disabled = false;
+      }
+      saveBed(i);
+    });
+
+    const template = document.getElementById(`template${i}`);
+    if (template) template.addEventListener('change', () => { applyTemplate(template.value, i); saveBed(i); });
+
+    const rerand = document.getElementById(`rerand${i}`);
+    if (rerand) rerand.addEventListener('click', () => rerandomize(i));
+  }
+
+  /* ------------------------------
+     Build forms
+     ------------------------------ */
+
+  function generateBedForms() {
+    const container = document.getElementById('bedsContainer');
+    container.innerHTML = ''; // clear
+    const count = parseInt(document.getElementById('bedCount').value) || 0;
+
+    for (let i = 1; i <= count; i++) {
+      const div = document.createElement('div');
+      div.className = 'bed-container';
+
+      div.innerHTML = `
+        <h3>Patient ${i}</h3>
+
+        <label>Quick Fill Template:</label>
+        <div class="template-row">
+          <select id="template${i}" class="template-select">
+            <option value="">-- Select Template --</option>
+            <option value="normalAdult">Normal Adult</option>
+            <option value="normalPedia">Normal Pedia</option>
+            <option value="lowBP">Critical Low BP</option>
+            <option value="highBP">High BP</option>
+          </select>
+          <button id="rerand${i}" class="small-btn" type="button" title="Re-randomize">🔄</button>
+        </div>
+
+        <label>Room:</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A3</label>
+          <label><input type="checkbox" name="room${i}" value="A4" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A4</label>
+          <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A5</label>
+          <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A6</label>
+        </div>
+
+        <label>Bed #:</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 1</label>
+          <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 2</label>
+          <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 3</label>
+          <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 4</label>
+        </div>
+
+        <label>Patient Categories:</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" id="cat_surgery${i}"> Surgery</label>
+          <label><input type="checkbox" id="cat_pedia${i}"> Pedia</label>
+          <label><input type="checkbox" id="cat_icu${i}"> ICU</label>
+        </div>
+
+        <label>Patient Name:</label>
+        <input type="text" id="patient${i}" placeholder="Patient Name">
+
+        <label>BP (mmHg):</label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="number" id="bp_sys${i}" placeholder="Sys" style="flex:1;">
+          <span>/</span>
+          <input type="number" id="bp_dia${i}" placeholder="Dia" style="flex:1;">
+        </div>
+
+        <label>HR (bpm):</label>
+        <input type="number" id="hr${i}" placeholder="e.g. 80">
+
+        <label>RR (/min):</label>
+        <input type="number" id="rr${i}" placeholder="e.g. 18">
+
+        <label style="margin-top:6px;"><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
+
+        <label>Temp (°C):</label>
+        <input type="number" step="0.1" id="temp${i}" placeholder="e.g. 36.5">
+
+        <label>O₂ Saturation (%):</label>
+        <input type="number" id="spo2${i}" placeholder="e.g. 100">
+
+        <label>GCS (optional):</label>
+        <div style="display:flex;gap:6px;">
+          <input type="number" id="gcs_e${i}" min="1" max="4" placeholder="E">
+          <input type="number" id="gcs_v${i}" min="1" max="5" placeholder="V">
+          <input type="number" id="gcs_m${i}" min="1" max="6" placeholder="M">
+          <input type="number" id="gcs_total${i}" placeholder="Total (optional)">
+        </div>
+
+        <label>RBS (optional):</label>
+        <input type="text" id="rbs${i}">
+
+        <label>Bowel Movement (BM) - optional:</label>
+        <input type="text" id="bm${i}">
+
+        <label>Urine Output (UO) - optional:</label>
+        <input type="text" id="uo${i}">
+      `;
+
+      container.appendChild(div);
+
+      // Attach listeners & auto-save
+      attachAutoSave(i);
+
+      // Load saved data (if any)
+      const savedRaw = localStorage.getItem(`bed${i}`);
+      if (savedRaw) {
+        try {
+          const data = JSON.parse(savedRaw);
+
+          if (data.patient) document.getElementById(`patient${i}`).value = data.patient;
+          if (data.sys) document.getElementById(`bp_sys${i}`).value = data.sys;
+          if (data.dia) document.getElementById(`bp_dia${i}`).value = data.dia;
+          if (data.hr) document.getElementById(`hr${i}`).value = data.hr;
+          if (data.rr) document.getElementById(`rr${i}`).value = data.rr;
+          if (data.mv) {
+            const mvEl = document.getElementById(`mv${i}`);
+            if (mvEl) { mvEl.checked = true; const rrEl = document.getElementById(`rr${i}`); if (rrEl) { rrEl.disabled = true; } }
+          }
+          if (data.temp) document.getElementById(`temp${i}`).value = data.temp;
+          if (data.spo2) document.getElementById(`spo2${i}`).value = data.spo2;
+
+          if (data.gcs_e) document.getElementById(`gcs_e${i}`).value = data.gcs_e;
+          if (data.gcs_v) document.getElementById(`gcs_v${i}`).value = data.gcs_v;
+          if (data.gcs_m) document.getElementById(`gcs_m${i}`).value = data.gcs_m;
+          if (data.gcs_total) document.getElementById(`gcs_total${i}`).value = data.gcs_total;
+
+          if (data.rbs) document.getElementById(`rbs${i}`).value = data.rbs;
+          if (data.bm) document.getElementById(`bm${i}`).value = data.bm;
+          if (data.uo) document.getElementById(`uo${i}`).value = data.uo;
+
+          // categories
+          if (data.categories) {
+            if (data.categories.surgery) document.getElementById(`cat_surgery${i}`).checked = true;
+            if (data.categories.pedia) document.getElementById(`cat_pedia${i}`).checked = true;
+            if (data.categories.icu) document.getElementById(`cat_icu${i}`).checked = true;
+          }
+
+          // room & bed
+          if (data.room) {
+            document.querySelectorAll(`.room-checkbox${i}`).forEach(cb => { cb.checked = (cb.value === data.room); });
+          }
+          if (data.bedNum) {
+            document.querySelectorAll(`.bed-checkbox${i}`).forEach(cb => { cb.checked = (cb.value === data.bedNum); });
+          }
+
+          // template
+          if (data.template) {
+            const t = document.getElementById(`template${i}`);
+            if (t) t.value = data.template;
+          }
+
+        } catch (err) {
+          console.error("load bed", i, err);
+        }
+      }
+    } // end for
+  } // end generateBedForms
+
+  /* ------------------------------
+     Generate Messages grouped by category
+     ------------------------------ */
+
+  function generateAllMessages() {
+    const count = parseInt(document.getElementById('bedCount').value) || 0;
+    let messages = { 'Surgery':'', 'Pedia':'', 'ICU':'' };
+
+    for (let i = 1; i <= count; i++) {
+      const cats = [];
+      if (document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked) cats.push('Surgery');
+      if (document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked) cats.push('Pedia');
+      if (document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked) cats.push('ICU');
+      if (cats.length === 0) continue; // skip if no category tagged
+
+      let room = 'Unknown Room';
+      document.querySelectorAll(`.room-checkbox${i}`).forEach(box => { if (box.checked) room = box.value; });
+
+      let bedNum = [];
+      document.querySelectorAll(`.bed-checkbox${i}`).forEach(box => { if (box.checked) bedNum.push(box.value); });
+      bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
+
+      const name = (document.getElementById(`patient${i}`) || {}).value || 'N/A';
+      const bp_sys = (document.getElementById(`bp_sys${i}`) || {}).value;
+      const bp_dia = (document.getElementById(`bp_dia${i}`) || {}).value;
+      const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
+      const hr = (document.getElementById(`hr${i}`) || {}).value || 'N/A';
+      const isMV = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
+      const rrRaw = (document.getElementById(`rr${i}`) || {}).value || 'N/A';
+      const finalRR = isMV ? 'MV' : rrRaw;
+      const temp = (document.getElementById(`temp${i}`) || {}).value || 'N/A';
+      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || 'N/A';
+
+      const gcs_e = parseInt((document.getElementById(`gcs_e${i}`) || {}).value) || 0;
+      const gcs_v = parseInt((document.getElementById(`gcs_v${i}`) || {}).value) || 0;
+      const gcs_m = parseInt((document.getElementById(`gcs_m${i}`) || {}).value) || 0;
+      const gcs_total_input = (document.getElementById(`gcs_total${i}`) || {}).value || '';
+      const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
+
+      const rbs = (document.getElementById(`rbs${i}`) || {}).value || '';
+      const bm = (document.getElementById(`bm${i}`) || {}).value || '';
+      const uo = (document.getElementById(`uo${i}`) || {}).value || '';
+
+      let message = `Room ${room} - Bed ${bedNum}\n` +
+                    `Patient: ${name}\n` +
+                    `BP: ${bp}\n` +
+                    `HR: ${hr}\n` +
+                    `RR: ${finalRR}\n` +
+                    `Temp: ${temp}\n` +
+                    `O₂: ${spo2}%\n`;
+
+      if (gcsFilled) {
+        const gcs_total = gcs_total_input ? gcs_total_input : (gcs_e + gcs_v + gcs_m > 0 ? (gcs_e+gcs_v+gcs_m) : 'N/A');
+        message += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
+      }
+
+      if (rbs) message += `RBS: ${rbs}\n`;
+      if (bm) message += `BM: ${bm}\n`;
+      if (uo) message += `UO: ${uo}\n`;
+
+      message += '\n';
+
+      cats.forEach(cat => { messages[cat] += message; });
+    }
+
+    // render output sections with copy buttons
+    const outputContainer = document.getElementById('output');
+    outputContainer.innerHTML = '';
+    ['Surgery','Pedia','ICU'].forEach(cat => {
+      if (messages[cat]) {
+        const sectionId = `msg_${cat}`;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'category-section';
+        wrapper.innerHTML = `<h3 style="margin-bottom:6px;">${cat} Patients</h3>
+          <button class="copy-btn" onclick="copyToClipboard('${sectionId}')">Copy ${cat} Section</button>
+          <pre id="${sectionId}">${messages[cat].trim()}</pre>`;
+        outputContainer.appendChild(wrapper);
+      }
+    });
+
+    if (!outputContainer.innerHTML) {
+      outputContainer.innerHTML = '<p style="text-align:center; color:#666;">No patients tagged in any category.</p>';
+    }
+  }
+
+  // Initialize (if bedCount already selected)
+  (function init() {
+    // Optionally generate the default forms if a count is selected
+    // If user had a previous bedCount saved, you could read it here (not implemented automatically)
+  })();
 
   </script>
 </body>
 </html>
-
-
-
-
-
