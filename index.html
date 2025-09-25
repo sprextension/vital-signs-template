@@ -270,36 +270,34 @@
   }
 
   // Send button listener
-  document.getElementById("sendBtn").addEventListener("click", async function () {
-    const message = generateAllMessages();
-    if (!message) {
-      alert("No patient data to send!");
-      return;
-    }
+ document.getElementById("sendBtn").addEventListener("click", async function () {
+    const bedCount = parseInt(document.getElementById("bedCount").value) || 0;
+    if (!bedCount) { alert("Select number of beds first!"); return; }
+
+    const message = generateAllMessages(); // this function uses bedCount internally now
+    if (!message) { alert("No patient data to send!"); return; }
 
     try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbzis8FcAZbs20usOCx3BtV5dZMiZ20K5e7eONbBgSfYQ5HIdadcqpPiIVwSiW6lWfav/exec",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message })
-        }
-      );
-
-      const result = await response.json();
-      if (response.ok) {
-        alert("Message sent successfully!");
-      } else {
-        alert("Error sending message: " + (result.error || JSON.stringify(result)));
-      }
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbzis8FcAZbs20usOCx3BtV5dZMiZ20K5e7eONbBgSfYQ5HIdadcqpPiIVwSiW6lWfav/exec",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+          }
+        );
+        const result = await response.json();
+        if (response.ok) alert("Message sent successfully!");
+        else alert("Error sending message: " + (result.error || JSON.stringify(result)));
     } catch (err) {
-      alert("Network error: " + err.message);
+        alert("Network error: " + err.message);
     }
-  });
+});
+
 </script>
 </body>
 </html>
+
 
 
 
