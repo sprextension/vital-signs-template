@@ -180,8 +180,6 @@
 
   <div class="top-right">
   <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
-  <button id="sendBtn">Send to Bot</button>
-
 </div>
   
   <h2>Vital Signs Formatter</h2>
@@ -196,7 +194,7 @@
     <option value="13">13 beds</option><option value="14">14 beds</option>
   </select>
 
-  <div id="bedsContainer"></div>
+  <div id="bedFormsContainer"></div>
 
   <button onclick="generateAllMessages()">Generate All Messages</button>
   <button onclick="clearAllBeds()">Clear All Beds</button>
@@ -205,125 +203,489 @@
   <div id="output"></div>
 
   <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const savedBedCount = localStorage.getItem("bedCount") || 1;
-  document.getElementById("bedCountSelect").value = savedBedCount;
-  generateBedForms(savedBedCount);
-});
+  /* ------------------------------
+     Utility & UI helpers
+     ------------------------------ */
 
-// Function to generate bed forms dynamically
-function generateBedForms() {
-  const count = document.getElementById("bedCount").value; // ← change here
-  if (!count) return; // nothing selected
-
-  for (let i = 1; i <= count; i++) {
-    const bedDiv = document.createElement("div");
-    bedDiv.className = "bed-form";
-    bedDiv.innerHTML = `
-      <h3>Bed ${i}</h3>
-      <label>Patient: <input type="text" id="patient${i}" /></label>
-      <label>BP Sys: <input type="number" id="bp_sys${i}" /></label>
-      <label>BP Dia: <input type="number" id="bp_dia${i}" /></label>
-      <label>HR: <input type="number" id="hr${i}" /></label>
-      <label>RR: <input type="number" id="rr${i}" /></label>
-      <label>MV: <input type="checkbox" id="mv${i}" /></label>
-      <label>Temp: <input type="number" id="temp${i}" step="0.1"/></label>
-      <label>SpO₂: <input type="number" id="spo2${i}" /></label>
-      <label>Template:
-        <select id="template${i}">
-          <option value="">--Select--</option>
-          <option value="normalAdult">Normal Adult</option>
-          <option value="normalPedia">Normal Pedia</option>
-          <option value="lowBP">Low BP</option>
-          <option value="highBP">High BP</option>
-        </select>
-      </label>
-      <button type="button" id="rerand${i}">Rerandomize</button>
-      <button type="button" id="clear${i}">Clear</button>
-      <hr/>
-    `;
-    container.appendChild(bedDiv);
-
-    attachAutoSave(i);
+  // Keep only one checked per class (used by room/bed checkboxes)
+  function handleSingleCheck(event, className) {
+    const checkboxes = document.getElementsByClassName(className);
+    for (let box of checkboxes) {
+      if (box !== event.target) box.checked = false;
+    }
   }
 
-  localStorage.setItem("bedCount", count);
-}
+  function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+  }
 
-// Attach autosave and button functionality for each bed
-function attachAutoSave(i) {
-  const fields = ["patient", "bp_sys", "bp_dia", "hr", "rr", "mv", "temp", "spo2", "template"];
-  fields.forEach(f => {
-    const el = document.getElementById(f + i);
-    if (!el) return;
-    el.addEventListener("input", () => {
-      if (el.type === "checkbox") {
-        localStorage.setItem(f + i, el.checked);
+  // On page load, restore dark mode if saved
+  window.onload = function () {
+    if (localStorage.getItem("darkMode") === "true") {
+       document.body.classList.add("dark");
+    }
+  };
+    
+  // Copy contents of pre to clipboard
+  function copyToClipboard(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Copied to clipboard!');
+    }).catch(err => {
+      alert('Failed to copy: ' + err);
+    });
+  }
+
+  // random helper: integers unless decimal > 0
+  function randomInRange(min, max, decimal = 0) {
+    const val = Math.random() * (max - min) + min;
+    return decimal > 0 ? parseFloat(val.toFixed(decimal)) : Math.round(val);
+  }
+
+  function clearAllBeds() {
+    const count = document.getElementById("bedCount").value;
+    for (let i = 1; i <= count; i++) {
+    localStorage.removeItem(`bed${i}`);
+  }
+  generateBedForms(); // refresh the forms after clearing
+  document.getElementById("output").innerHTML = ""; // correct for a div container
+}
+    
+  /* ------------------------------
+     Templates + randomizer
+     ------------------------------ */
+
+  function applyTemplate(template, i) {
+    if (!template) return;
+    switch(template) {
+      case "normalAdult":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(110,130);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(70,85);
+        document.getElementById(`hr${i}`).value = randomInRange(60,100);
+        document.getElementById(`rr${i}`).value = randomInRange(12,20);
+        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.3,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(96,100);
+        break;
+
+      case "normalPedia":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(90,110);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(60,75);
+        document.getElementById(`hr${i}`).value = randomInRange(80,120);
+        document.getElementById(`rr${i}`).value = randomInRange(20,30);
+        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.5,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(97,100);
+        break;
+
+      case "lowBP":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(70,90);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(40,60);
+        document.getElementById(`hr${i}`).value = randomInRange(110,140);
+        document.getElementById(`rr${i}`).value = randomInRange(22,30);
+        document.getElementById(`temp${i}`).value = randomInRange(36.0,37.0,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(85,92);
+        break;
+
+      case "highBP":
+        document.getElementById(`bp_sys${i}`).value = randomInRange(150,170);
+        document.getElementById(`bp_dia${i}`).value = randomInRange(95,110);
+        document.getElementById(`hr${i}`).value = randomInRange(80,100);
+        document.getElementById(`rr${i}`).value = randomInRange(16,22);
+        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.2,1);
+        document.getElementById(`spo2${i}`).value = randomInRange(95,99);
+        break;
+    }
+  }
+
+  function rerandomize(i) {
+    const template = document.getElementById(`template${i}`).value;
+    if (!template) {
+      alert('Please select a template first!');
+      return;
+    }
+    applyTemplate(template, i);
+    saveBed(i);
+  }
+
+  /* ------------------------------
+     Persistence (auto-save)
+     ------------------------------ */
+
+  function saveBed(i) {
+    try {
+      const patient = (document.getElementById(`patient${i}`) || {}).value || "";
+      const sys = (document.getElementById(`bp_sys${i}`) || {}).value || "";
+      const dia = (document.getElementById(`bp_dia${i}`) || {}).value || "";
+      const hr = (document.getElementById(`hr${i}`) || {}).value || "";
+      const rr = (document.getElementById(`rr${i}`) || {}).value || "";
+      const mv = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
+      const temp = (document.getElementById(`temp${i}`) || {}).value || "";
+      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || "";
+      const gcs_e = (document.getElementById(`gcs_e${i}`) || {}).value || "";
+      const gcs_v = (document.getElementById(`gcs_v${i}`) || {}).value || "";
+      const gcs_m = (document.getElementById(`gcs_m${i}`) || {}).value || "";
+      const gcs_total = (document.getElementById(`gcs_total${i}`) || {}).value || "";
+      const rbs = (document.getElementById(`rbs${i}`) || {}).value || "";
+      const bm = (document.getElementById(`bm${i}`) || {}).value || "";
+      const uo = (document.getElementById(`uo${i}`) || {}).value || "";
+      const template = (document.getElementById(`template${i}`) || {}).value || "";
+
+      // single room/bed (we enforce single selection via handleSingleCheck)
+      let room = "";
+      document.querySelectorAll(`.room-checkbox${i}`).forEach(b => { if (b.checked) room = b.value; });
+
+      let bedNum = "";
+      document.querySelectorAll(`.bed-checkbox${i}`).forEach(b => { if (b.checked) bedNum = b.value; });
+
+      const categories = {
+        surgery: !!(document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked),
+        pedia: !!(document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked),
+        icu: !!(document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked)
+      };
+
+      const data = {
+        patient, sys, dia, hr, rr, mv, temp, spo2,
+        gcs_e, gcs_v, gcs_m, gcs_total,
+        rbs, bm, uo, room, bedNum, categories, template
+      };
+
+      localStorage.setItem(`bed${i}`, JSON.stringify(data));
+    } catch (err) {
+      console.error("saveBed error", err);
+    }
+  }
+    
+  function clearBed(i) {
+    // Fields to clear (vitals + related optional data)
+    const clearFields = ['bp_sys','bp_dia','hr','rr','temp','spo2','gcs_e','gcs_v','gcs_m','gcs_total','rbs','bm','uo'];
+    clearFields.forEach(f => {
+      const el = document.getElementById(`${f}${i}`);
+      if (el) {
+        el.value = '';
+        // ensure RR is enabled when clearing
+        if (f === 'rr') el.disabled = false;
+      }
+    });
+  
+    // Uncheck MV if present and re-enable RR input
+    const mv = document.getElementById(`mv${i}`);
+    if (mv) {
+      mv.checked = false;
+      const rrEl = document.getElementById(`rr${i}`);
+      if (rrEl) rrEl.disabled = false;
+    }
+  
+    // Do NOT clear patient name / room / bed / categories / template.
+    // Persist current state
+    saveBed(i);
+  }
+
+  /* Attach auto-save listeners for a set of fields on bed i */
+  function attachAutoSave(i) {
+    const textFields = ["patient","bp_sys","bp_dia","hr","rr","temp","spo2","gcs_e","gcs_v","gcs_m","gcs_total","rbs","bm","uo"];
+    textFields.forEach(f => {
+      const el = document.getElementById(`${f}${i}`);
+      if (el) el.addEventListener('input', () => saveBed(i));
+    });
+
+    // checkboxes: room & bed & categories & mv
+    document.querySelectorAll(`.room-checkbox${i}`).forEach(cb => {
+      cb.addEventListener('change', (ev) => { handleSingleCheck(ev, `room-checkbox${i}`); saveBed(i); });
+    });
+    document.querySelectorAll(`.bed-checkbox${i}`).forEach(cb => {
+      cb.addEventListener('change', (ev) => { handleSingleCheck(ev, `bed-checkbox${i}`); saveBed(i); });
+    });
+    ["cat_surgery","cat_pedia","cat_icu"].forEach(base => {
+      const el = document.getElementById(`${base}${i}`);
+      if (el) el.addEventListener('change', () => saveBed(i));
+    });
+
+    const mv = document.getElementById(`mv${i}`);
+    if (mv) mv.addEventListener('change', () => {
+      const rrEl = document.getElementById(`rr${i}`);
+      if (mv.checked) {
+        // disable RR input if MV is checked and clear value
+        if (rrEl) { rrEl.value = ""; rrEl.disabled = true; }
       } else {
-        localStorage.setItem(f + i, el.value);
+        if (rrEl) rrEl.disabled = false;
+      }
+      saveBed(i);
+    });
+
+    const template = document.getElementById(`template${i}`);
+    if (template) template.addEventListener('change', () => { applyTemplate(template.value, i); saveBed(i); });
+
+    const rerand = document.getElementById(`rerand${i}`);
+    if (rerand) rerand.addEventListener('click', () => rerandomize(i));
+  }
+
+  /* ------------------------------
+     Build forms
+     ------------------------------ */
+
+  function generateBedForms() {
+    const container = document.getElementById('bedsContainer');
+    container.innerHTML = ''; // clear
+    const count = parseInt(document.getElementById('bedCount').value) || 0;
+
+    for (let i = 1; i <= count; i++) {
+      const div = document.createElement('div');
+      div.className = 'bed-container';
+
+      div.innerHTML = `
+        <h3>Patient ${i}</h3>
+
+        <label>Quick Fill Template:</label>
+        <div class="template-row">
+          <select id="template${i}" class="template-select">
+            <option value="">-- Select Template --</option>
+            <option value="normalAdult">Normal Adult</option>
+            <option value="normalPedia">Normal Pedia</option>
+            <option value="lowBP">Critical Low BP</option>
+            <option value="highBP">High BP</option>
+          </select>
+          <button id="rerand${i}" class="small-btn" type="button" title="Re-randomize">🔄</button>
+          <button id="clear${i}" class="small-btn" type="button" onclick="clearBed(${i})">Clear</button>
+
+        </div>
+
+        <label>Room:</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A3</label>
+          <label><input type="checkbox" name="room${i}" value="A4" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A4</label>
+          <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A5</label>
+          <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A6</label>
+        </div>
+
+        <label>Bed #:</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 1</label>
+          <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 2</label>
+          <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 3</label>
+          <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 4</label>
+        </div>
+
+        <label>Patient Categories:</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" id="cat_surgery${i}"> Surgery</label>
+          <label><input type="checkbox" id="cat_pedia${i}"> Pedia</label>
+          <label><input type="checkbox" id="cat_icu${i}"> ICU</label>
+        </div>
+
+        <label>Patient Name:</label>
+        <input type="text" id="patient${i}" placeholder="Patient Name">
+
+        <label>BP (mmHg):</label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="number" id="bp_sys${i}" placeholder="Sys" style="flex:1;">
+          <span>/</span>
+          <input type="number" id="bp_dia${i}" placeholder="Dia" style="flex:1;">
+        </div>
+
+        <label>HR (bpm):</label>
+        <input type="number" id="hr${i}" placeholder="e.g. 80">
+
+        <label>RR (/min):</label>
+        <input type="number" id="rr${i}" placeholder="e.g. 18">
+
+        <label style="margin-top:6px;"><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
+
+        <label>Temp (°C):</label>
+        <input type="number" step="0.1" id="temp${i}" placeholder="e.g. 36.5">
+
+        <label>O₂ Saturation (%):</label>
+        <input type="number" id="spo2${i}" placeholder="e.g. 100">
+
+        <label>GCS (optional):</label>
+        <div style="display:flex;gap:6px;">
+          <input type="number" id="gcs_e${i}" min="1" max="4" placeholder="E">
+          <input type="number" id="gcs_v${i}" min="1" max="5" placeholder="V">
+          <input type="number" id="gcs_m${i}" min="1" max="6" placeholder="M">
+          <input type="number" id="gcs_total${i}" placeholder="Total (optional)">
+        </div>
+
+        <label>RBS (optional):</label>
+        <input type="text" id="rbs${i}">
+
+        <label>Bowel Movement (BM) - optional:</label>
+        <input type="text" id="bm${i}">
+
+        <label>Urine Output (UO) - optional:</label>
+        <input type="text" id="uo${i}">
+      `;
+
+      container.appendChild(div);
+
+      // Attach listeners & auto-save
+      attachAutoSave(i);
+
+      // Load saved data (if any)
+      const savedRaw = localStorage.getItem(`bed${i}`);
+      if (savedRaw) {
+        try {
+          const data = JSON.parse(savedRaw);
+
+          if (data.patient) document.getElementById(`patient${i}`).value = data.patient;
+          if (data.sys) document.getElementById(`bp_sys${i}`).value = data.sys;
+          if (data.dia) document.getElementById(`bp_dia${i}`).value = data.dia;
+          if (data.hr) document.getElementById(`hr${i}`).value = data.hr;
+          if (data.rr) document.getElementById(`rr${i}`).value = data.rr;
+          if (data.mv) {
+            const mvEl = document.getElementById(`mv${i}`);
+            if (mvEl) { mvEl.checked = true; const rrEl = document.getElementById(`rr${i}`); if (rrEl) { rrEl.disabled = true; } }
+          }
+          if (data.temp) document.getElementById(`temp${i}`).value = data.temp;
+          if (data.spo2) document.getElementById(`spo2${i}`).value = data.spo2;
+
+          if (data.gcs_e) document.getElementById(`gcs_e${i}`).value = data.gcs_e;
+          if (data.gcs_v) document.getElementById(`gcs_v${i}`).value = data.gcs_v;
+          if (data.gcs_m) document.getElementById(`gcs_m${i}`).value = data.gcs_m;
+          if (data.gcs_total) document.getElementById(`gcs_total${i}`).value = data.gcs_total;
+
+          if (data.rbs) document.getElementById(`rbs${i}`).value = data.rbs;
+          if (data.bm) document.getElementById(`bm${i}`).value = data.bm;
+          if (data.uo) document.getElementById(`uo${i}`).value = data.uo;
+
+          // categories
+          if (data.categories) {
+            if (data.categories.surgery) document.getElementById(`cat_surgery${i}`).checked = true;
+            if (data.categories.pedia) document.getElementById(`cat_pedia${i}`).checked = true;
+            if (data.categories.icu) document.getElementById(`cat_icu${i}`).checked = true;
+          }
+
+          // room & bed
+          if (data.room) {
+            document.querySelectorAll(`.room-checkbox${i}`).forEach(cb => { cb.checked = (cb.value === data.room); });
+          }
+          if (data.bedNum) {
+            document.querySelectorAll(`.bed-checkbox${i}`).forEach(cb => { cb.checked = (cb.value === data.bedNum); });
+          }
+
+          // template
+          if (data.template) {
+            const t = document.getElementById(`template${i}`);
+            if (t) t.value = data.template;
+          }
+
+        } catch (err) {
+          console.error("load bed", i, err);
+        }
+      }
+    } // end for
+  } // end generateBedForms
+
+  /* ------------------------------
+     Generate Messages grouped by category
+     ------------------------------ */
+
+  function generateAllMessages() {
+    const count = parseInt(document.getElementById('bedCount').value) || 0;
+    let messages = { 'Surgery':'', 'Pedia':'', 'ICU':'' };
+
+    for (let i = 1; i <= count; i++) {
+      const cats = [];
+      if (document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked) cats.push('Surgery');
+      if (document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked) cats.push('Pedia');
+      if (document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked) cats.push('ICU');
+      if (cats.length === 0) continue;
+
+      let room = 'Unknown Room';
+      document.querySelectorAll(`.room-checkbox${i}`).forEach(box => { if (box.checked) room = box.value; });
+
+      let bedNum = [];
+      document.querySelectorAll(`.bed-checkbox${i}`).forEach(box => { if (box.checked) bedNum.push(box.value); });
+      bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
+
+      const name = (document.getElementById(`patient${i}`) || {}).value || 'N/A';
+      const bp_sys = (document.getElementById(`bp_sys${i}`) || {}).value;
+      const bp_dia = (document.getElementById(`bp_dia${i}`) || {}).value;
+      const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
+      const hr = (document.getElementById(`hr${i}`) || {}).value || 'N/A';
+      const isMV = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
+      const rrRaw = (document.getElementById(`rr${i}`) || {}).value || 'N/A';
+      const finalRR = isMV ? 'MV' : rrRaw;
+      const temp = (document.getElementById(`temp${i}`) || {}).value || 'N/A';
+      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || 'N/A';
+
+      const gcs_e = parseInt((document.getElementById(`gcs_e${i}`) || {}).value) || 0;
+      const gcs_v = parseInt((document.getElementById(`gcs_v${i}`) || {}).value) || 0;
+      const gcs_m = parseInt((document.getElementById(`gcs_m${i}`) || {}).value) || 0;
+      const gcs_total_input = (document.getElementById(`gcs_total${i}`) || {}).value || '';
+      const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
+
+      const rbs = (document.getElementById(`rbs${i}`) || {}).value || '';
+      const bm = (document.getElementById(`bm${i}`) || {}).value || '';
+      const uo = (document.getElementById(`uo${i}`) || {}).value || '';
+
+      let message = `Room ${room} - Bed ${bedNum}\n` +
+                    `Patient: ${name}\n` +
+                    `BP: ${bp}\n` +
+                    `HR: ${hr}\n` +
+                    `RR: ${finalRR}\n` +
+                    `Temp: ${temp}\n` +
+                    `O₂: ${spo2}%\n`;
+
+      if (gcsFilled) {
+        const gcs_total = gcs_total_input ? gcs_total_input : (gcs_e + gcs_v + gcs_m > 0 ? (gcs_e+gcs_v+gcs_m) : 'N/A');
+        message += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
+      }
+
+      if (rbs) message += `RBS: ${rbs}\n`;
+      if (bm) message += `BM: ${bm}\n`;
+      if (uo) message += `UO: ${uo}\n`;
+
+      message += '\n';
+
+      cats.forEach(cat => { messages[cat] += message; });
+    }
+
+    // ----------------------------
+    // SEND TO MESSENGER GC
+    // ----------------------------
+    function sendToMessengerGC(msg) {
+      fetch('https://script.google.com/macros/s/AKfycbwddMOqKUuBklSLLqNbPctnOfsIXNpTqkBIQte8y9HyW7Qgy86Fek-FjzR9IUJ4qNl4/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: msg })
+      })
+      .then(res => res.json())
+      .then(data => console.log('Message sent:', data))
+      .catch(err => console.error('Messenger GC error:', err));
+    }
+
+    ['Surgery','Pedia','ICU'].forEach(cat => {
+      if (messages[cat]) sendToMessengerGC(messages[cat]);
+    });
+
+    // ----------------------------
+    // RENDER OUTPUT
+    // ----------------------------
+    const outputContainer = document.getElementById('output');
+    outputContainer.innerHTML = '';
+    ['Surgery','Pedia','ICU'].forEach(cat => {
+      if (messages[cat]) {
+        const sectionId = `msg_${cat}`;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'category-section';
+        wrapper.innerHTML = `<h3 style="margin-bottom:6px;">${cat} Patients</h3>
+          <button class="copy-btn" onclick="copyToClipboard('${sectionId}')">Copy ${cat} Section</button>
+          <pre id="${sectionId}">${messages[cat].trim()}</pre>`;
+        outputContainer.appendChild(wrapper);
       }
     });
 
-    // Load saved value
-    const saved = localStorage.getItem(f + i);
-    if (saved !== null) {
-      if (el.type === "checkbox") el.checked = saved === "true";
-      else el.value = saved;
+    if (!outputContainer.innerHTML) {
+      outputContainer.innerHTML = '<p style="text-align:center; color:#666;">No patients tagged in any category.</p>';
     }
-  });
-
-  // Clear button
-  const clearBtn = document.getElementById("clear" + i);
-  if (clearBtn) clearBtn.addEventListener("click", () => {
-    fields.forEach(f => {
-      const el = document.getElementById(f + i);
-      if (!el) return;
-      if (el.type === "checkbox") el.checked = false;
-      else el.value = "";
-      localStorage.removeItem(f + i);
-    });
-  });
-
-  // Rerandomize button (example: random vitals)
-  const rerandBtn = document.getElementById("rerand" + i);
-  if (rerandBtn) rerandBtn.addEventListener("click", () => {
-    document.getElementById("bp_sys" + i).value = randomBetween(90, 140);
-    document.getElementById("bp_dia" + i).value = randomBetween(60, 90);
-    document.getElementById("hr" + i).value = randomBetween(60, 120);
-    document.getElementById("rr" + i).value = randomBetween(12, 24);
-    document.getElementById("temp" + i).value = (Math.random() * 2 + 36).toFixed(1);
-    document.getElementById("spo2" + i).value = randomBetween(95, 100);
-  });
 }
 
-function randomBetween(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// Copy all beds info to clipboard
-function copyAllBeds() {
-  const count = document.getElementById("bedCountSelect").value;
-  let text = "";
-  for (let i = 1; i <= count; i++) {
-    text += `Bed ${i}:\n`;
-    text += `Patient: ${document.getElementById("patient" + i).value}\n`;
-    text += `BP: ${document.getElementById("bp_sys" + i).value}/${document.getElementById("bp_dia" + i).value}\n`;
-    text += `HR: ${document.getElementById("hr" + i).value}\n`;
-    text += `RR: ${document.getElementById("rr" + i).value}\n`;
-    text += `MV: ${document.getElementById("mv" + i).checked}\n`;
-    text += `Temp: ${document.getElementById("temp" + i).value}\n`;
-    text += `SpO₂: ${document.getElementById("spo2" + i).value}\n`;
-    text += `Template: ${document.getElementById("template" + i).value}\n\n`;
-  }
-  navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
-}
-</script>
+// Initialize (if bedCount already selected)
+(function init() {
+    // Optionally generate the default forms if a count is selected
+})();
+    
+  </script>
 </body>
 </html>
-
-
-
-
-
 
 
