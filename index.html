@@ -180,6 +180,8 @@
 
   <div class="top-right">
   <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+  <button id="sendBtn">Send to Bot</button>
+
 </div>
   
   <h2>Vital Signs Formatter</h2>
@@ -578,96 +580,107 @@
      Generate Messages grouped by category
      ------------------------------ */
 
-  function generateAllMessages() {
-    const count = parseInt(document.getElementById('bedCount').value) || 0;
-    let messages = { 'Surgery':'', 'Pedia':'', 'ICU':'' };
+/* Generate all messages grouped by categories */
+function generateAllMessages() {
+  let groups = { surgery: [], pedia: [], icu: [] };
 
-    for (let i = 1; i <= count; i++) {
-      const cats = [];
-      if (document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked) cats.push('Surgery');
-      if (document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked) cats.push('Pedia');
-      if (document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked) cats.push('ICU');
-      if (cats.length === 0) continue; // skip if no category tagged
+  for (let i = 1; i <= bedCount; i++) {
+    const patient = (document.getElementById(`patient${i}`) || {}).value || "";
+    if (!patient) continue;
 
-      let room = 'Unknown Room';
-      document.querySelectorAll(`.room-checkbox${i}`).forEach(box => { if (box.checked) room = box.value; });
+    const room = getSelectedValue(`room-checkbox${i}`);
+    const bed = getSelectedValue(`bed-checkbox${i}`);
+    const bp_sys = (document.getElementById(`bp_sys${i}`) || {}).value || "N/A";
+    const bp_dia = (document.getElementById(`bp_dia${i}`) || {}).value || "";
+    const hr = (document.getElementById(`hr${i}`) || {}).value || "N/A";
+    const temp = (document.getElementById(`temp${i}`) || {}).value || "N/A";
+    const spo2 = (document.getElementById(`spo2${i}`) || {}).value || "N/A";
+    const rbs = (document.getElementById(`rbs${i}`) || {}).value || "";
+    const bm = (document.getElementById(`bm${i}`) || {}).value || "";
+    const uo = (document.getElementById(`uo${i}`) || {}).value || "";
 
-      let bedNum = [];
-      document.querySelectorAll(`.bed-checkbox${i}`).forEach(box => { if (box.checked) bedNum.push(box.value); });
-      bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
+    const gcs_e = (document.getElementById(`gcs_e${i}`) || {}).value || "";
+    const gcs_v = (document.getElementById(`gcs_v${i}`) || {}).value || "";
+    const gcs_m = (document.getElementById(`gcs_m${i}`) || {}).value || "";
+    const gcs_total = (document.getElementById(`gcs_total${i}`) || {}).value || "";
 
-      const name = (document.getElementById(`patient${i}`) || {}).value || 'N/A';
-      const bp_sys = (document.getElementById(`bp_sys${i}`) || {}).value;
-      const bp_dia = (document.getElementById(`bp_dia${i}`) || {}).value;
-      const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
-      const hr = (document.getElementById(`hr${i}`) || {}).value || 'N/A';
-      const isMV = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
-      const rrRaw = (document.getElementById(`rr${i}`) || {}).value || 'N/A';
-      const finalRR = isMV ? 'MV' : rrRaw;
-      const temp = (document.getElementById(`temp${i}`) || {}).value || 'N/A';
-      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || 'N/A';
+    const isMV = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
+    const rrRaw = (document.getElementById(`rr${i}`) || {}).value || "N/A";
+    const rr = isMV ? "MV" : rrRaw;
 
-      const gcs_e = parseInt((document.getElementById(`gcs_e${i}`) || {}).value) || 0;
-      const gcs_v = parseInt((document.getElementById(`gcs_v${i}`) || {}).value) || 0;
-      const gcs_m = parseInt((document.getElementById(`gcs_m${i}`) || {}).value) || 0;
-      const gcs_total_input = (document.getElementById(`gcs_total${i}`) || {}).value || '';
-      const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
-
-      const rbs = (document.getElementById(`rbs${i}`) || {}).value || '';
-      const bm = (document.getElementById(`bm${i}`) || {}).value || '';
-      const uo = (document.getElementById(`uo${i}`) || {}).value || '';
-
-      let message = `Room ${room} - Bed ${bedNum}\n` +
-                    `Patient: ${name}\n` +
-                    `BP: ${bp}\n` +
-                    `HR: ${hr}\n` +
-                    `RR: ${finalRR}\n` +
-                    `Temp: ${temp}\n` +
-                    `O₂: ${spo2}%\n`;
-
-      if (gcsFilled) {
-        const gcs_total = gcs_total_input ? gcs_total_input : (gcs_e + gcs_v + gcs_m > 0 ? (gcs_e+gcs_v+gcs_m) : 'N/A');
-        message += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
-      }
-
-      if (rbs) message += `RBS: ${rbs}\n`;
-      if (bm) message += `BM: ${bm}\n`;
-      if (uo) message += `UO: ${uo}\n`;
-
-      message += '\n';
-
-      cats.forEach(cat => { messages[cat] += message; });
+    let msg = `Room ${room || "?"} - Bed ${bed || "?"}\n`;
+    msg += `Patient: ${patient}\n`;
+    msg += `BP: ${bp_sys}/${bp_dia}\n`;
+    msg += `HR: ${hr}\n`;
+    msg += `RR: ${rr}\n`;
+    msg += `Temp: ${temp}\n`;
+    msg += `O₂: ${spo2}\n`;
+    if (gcs_total) {
+      msg += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
     }
+    if (rbs) msg += `RBS: ${rbs}\n`;
+    if (bm) msg += `BM: ${bm}\n`;
+    if (uo) msg += `UO: ${uo}\n`;
 
-    // render output sections with copy buttons
-    const outputContainer = document.getElementById('output');
-    outputContainer.innerHTML = '';
-    ['Surgery','Pedia','ICU'].forEach(cat => {
-      if (messages[cat]) {
-        const sectionId = `msg_${cat}`;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'category-section';
-        wrapper.innerHTML = `<h3 style="margin-bottom:6px;">${cat} Patients</h3>
-          <button class="copy-btn" onclick="copyToClipboard('${sectionId}')">Copy ${cat} Section</button>
-          <pre id="${sectionId}">${messages[cat].trim()}</pre>`;
-        outputContainer.appendChild(wrapper);
-      }
-    });
-
-    if (!outputContainer.innerHTML) {
-      outputContainer.innerHTML = '<p style="text-align:center; color:#666;">No patients tagged in any category.</p>';
+    if (document.getElementById(`cat_surgery${i}`)?.checked) {
+      groups.surgery.push(msg);
+    } else if (document.getElementById(`cat_pedia${i}`)?.checked) {
+      groups.pedia.push(msg);
+    } else if (document.getElementById(`cat_icu${i}`)?.checked) {
+      groups.icu.push(msg);
     }
   }
 
-  // Initialize (if bedCount already selected)
-  (function init() {
-    // Optionally generate the default forms if a count is selected
-    // If user had a previous bedCount saved, you could read it here (not implemented automatically)
-  })();
+  let finalMsg = "";
+  if (groups.surgery.length) {
+    finalMsg += "=== Surgery ===\n" + groups.surgery.join("\n") + "\n\n";
+  }
+  if (groups.pedia.length) {
+    finalMsg += "=== Pedia ===\n" + groups.pedia.join("\n") + "\n\n";
+  }
+  if (groups.icu.length) {
+    finalMsg += "=== ICU ===\n" + groups.icu.join("\n") + "\n\n";
+  }
 
+  document.getElementById("output").innerText = finalMsg.trim();
+  return finalMsg.trim();
+}
+
+/* Dark mode toggle */
+document.getElementById("darkModeToggle").addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+});
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark-mode");
+}
+
+document.getElementById("sendBtn").addEventListener("click", async function () {
+      let message = generateAllMessages(); // gets the staff’s formatted message
+
+      try {
+          const response = await fetch("https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ message })
+            });
+
+
+          const result = await response.json();
+          if (response.ok) {
+              alert("Message sent successfully!");
+          } else {
+              alert("Error sending message: " + (result.error || JSON.stringify(result)));
+          }
+      } catch (err) {
+          alert("Network error: " + err.message);
+      }
+  });
+    
   </script>
 </body>
 </html>
+
 
 
 
