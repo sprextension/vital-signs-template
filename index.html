@@ -213,7 +213,7 @@
     localStorage.removeItem(`bed${i}`);
   }
   generateBedForms(); // refresh the forms after clearing
-  document.getElementById("output").value = ""; // clear the output box too
+  document.getElementById("output").innerHTML = ""; // correct for a div container
 }
     
   /* ------------------------------
@@ -318,6 +318,31 @@
       console.error("saveBed error", err);
     }
   }
+    
+  function clearBed(i) {
+    // Fields to clear (vitals + related optional data)
+    const clearFields = ['bp_sys','bp_dia','hr','rr','temp','spo2','gcs_e','gcs_v','gcs_m','gcs_total','rbs','bm','uo'];
+    clearFields.forEach(f => {
+      const el = document.getElementById(`${f}${i}`);
+      if (el) {
+        el.value = '';
+        // ensure RR is enabled when clearing
+        if (f === 'rr') el.disabled = false;
+      }
+    });
+  
+    // Uncheck MV if present and re-enable RR input
+    const mv = document.getElementById(`mv${i}`);
+    if (mv) {
+      mv.checked = false;
+      const rrEl = document.getElementById(`rr${i}`);
+      if (rrEl) rrEl.disabled = false;
+    }
+  
+    // Do NOT clear patient name / room / bed / categories / template.
+    // Persist current state
+    saveBed(i);
+  }
 
   /* Attach auto-save listeners for a set of fields on bed i */
   function attachAutoSave(i) {
@@ -384,7 +409,8 @@
             <option value="highBP">High BP</option>
           </select>
           <button id="rerand${i}" class="small-btn" type="button" title="Re-randomize">🔄</button>
-          <button onclick="clearBed(currentBed)">Clear</button>
+          <button id="clear${i}" class="small-btn" type="button" onclick="clearBed(${i})">Clear</button>
+
         </div>
 
         <label>Room:</label>
@@ -606,5 +632,6 @@
   </script>
 </body>
 </html>
+
 
 
