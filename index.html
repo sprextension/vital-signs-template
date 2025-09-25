@@ -51,6 +51,41 @@
       font-size:14px;
     }
 
+    /* Clear Button */
+    .template-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .template-row select {
+      flex: 1;
+      padding: 8px;
+    }
+
+    .template-row button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Dark Mode */
+    .top-right {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    
+    .top-right button {
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+
     /* Template control sizing */
     .template-row{ display:flex; gap:8px; align-items:center; margin-top:6px; }
     .template-select{ width:160px; padding:6px; font-size:13px; }
@@ -107,6 +142,10 @@
 </head>
 <body>
 
+  <div class="top-right">
+  <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+</div>
+  
   <h2>Vital Signs Formatter</h2>
 
   <label for="bedCount">How many beds are occupied?</label>
@@ -123,6 +162,7 @@
 
   <button onclick="generateAllMessages()">Generate All Messages</button>
   <button onclick="clearAllBeds()">Clear All Beds</button>
+  
 
   <div id="output"></div>
 
@@ -139,6 +179,18 @@
     }
   }
 
+  function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+  }
+
+  // On page load, restore dark mode if saved
+  window.onload = function () {
+    if (localStorage.getItem("darkMode") === "true") {
+       document.body.classList.add("dark");
+    }
+  };
+    
   // Copy contents of pre to clipboard
   function copyToClipboard(id) {
     const text = document.getElementById(id).innerText;
@@ -332,6 +384,7 @@
             <option value="highBP">High BP</option>
           </select>
           <button id="rerand${i}" class="small-btn" type="button" title="Re-randomize">🔄</button>
+          <button onclick="clearBed(currentBed)">Clear</button>
         </div>
 
         <label>Room:</label>
@@ -553,4 +606,5 @@
   </script>
 </body>
 </html>
+
 
