@@ -53,9 +53,22 @@ pre{ background:var(--muted); padding:12px; border-radius:8px; white-space:pre-w
 <h2>Vital Signs Formatter</h2>
 
 <label for="bedCount">How many beds are occupied?</label>
-<select id="bedCount" onchange="changeBedCount()">
+  <select id="bedCount" onchange="generateBedForms()">
   <option value="">Select...</option>
-  ${Array.from({length:14}, (_,i)=>`<option value="${i+1}">${i+1} bed${i>0?'s':''}</option>`).join('')}
+  <option value="1">1 bed</option>
+  <option value="2">2 beds</option>
+  <option value="3">3 beds</option>
+  <option value="4">4 beds</option>
+  <option value="5">5 beds</option>
+  <option value="6">6 beds</option>
+  <option value="7">7 beds</option>
+  <option value="8">8 beds</option>
+  <option value="9">9 beds</option>
+  <option value="10">10 beds</option>
+  <option value="11">11 beds</option>
+  <option value="12">12 beds</option>
+  <option value="13">13 beds</option>
+  <option value="14">14 beds</option>
 </select>
 
 <div id="bedsContainer"></div>
@@ -246,3 +259,4 @@ window.onload=generateBedForms;
 </script>
 </body>
 </html>
+
