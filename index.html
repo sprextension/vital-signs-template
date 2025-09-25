@@ -205,481 +205,102 @@
   <div id="output"></div>
 
   <script>
-  /* ------------------------------
-     Utility & UI helpers
-     ------------------------------ */
-
-  // Keep only one checked per class (used by room/bed checkboxes)
-  function handleSingleCheck(event, className) {
+  // Helper to get the value of the selected checkbox in a class
+  function getSelectedValue(className) {
     const checkboxes = document.getElementsByClassName(className);
-    for (let box of checkboxes) {
-      if (box !== event.target) box.checked = false;
+    for (let cb of checkboxes) {
+      if (cb.checked) return cb.value;
     }
+    return "";
   }
 
-  function toggleDarkMode() {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark"));
-  }
+  // Generate all messages grouped by category
+  function generateAllMessages() {
+    const bedCount = parseInt(document.getElementById("bedCount").value) || 0;
+    let groups = { surgery: [], pedia: [], icu: [] };
 
-  // On page load, restore dark mode if saved
-  window.onload = function () {
-    if (localStorage.getItem("darkMode") === "true") {
-       document.body.classList.add("dark");
-    }
-  };
-    
-  // Copy contents of pre to clipboard
-  function copyToClipboard(id) {
-    const text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
-    }).catch(err => {
-      alert('Failed to copy: ' + err);
-    });
-  }
-
-  // random helper: integers unless decimal > 0
-  function randomInRange(min, max, decimal = 0) {
-    const val = Math.random() * (max - min) + min;
-    return decimal > 0 ? parseFloat(val.toFixed(decimal)) : Math.round(val);
-  }
-
-  function clearAllBeds() {
-    const count = document.getElementById("bedCount").value;
-    for (let i = 1; i <= count; i++) {
-    localStorage.removeItem(`bed${i}`);
-  }
-  generateBedForms(); // refresh the forms after clearing
-  document.getElementById("output").innerHTML = ""; // correct for a div container
-}
-    
-  /* ------------------------------
-     Templates + randomizer
-     ------------------------------ */
-
-  function applyTemplate(template, i) {
-    if (!template) return;
-    switch(template) {
-      case "normalAdult":
-        document.getElementById(`bp_sys${i}`).value = randomInRange(110,130);
-        document.getElementById(`bp_dia${i}`).value = randomInRange(70,85);
-        document.getElementById(`hr${i}`).value = randomInRange(60,100);
-        document.getElementById(`rr${i}`).value = randomInRange(12,20);
-        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.3,1);
-        document.getElementById(`spo2${i}`).value = randomInRange(96,100);
-        break;
-
-      case "normalPedia":
-        document.getElementById(`bp_sys${i}`).value = randomInRange(90,110);
-        document.getElementById(`bp_dia${i}`).value = randomInRange(60,75);
-        document.getElementById(`hr${i}`).value = randomInRange(80,120);
-        document.getElementById(`rr${i}`).value = randomInRange(20,30);
-        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.5,1);
-        document.getElementById(`spo2${i}`).value = randomInRange(97,100);
-        break;
-
-      case "lowBP":
-        document.getElementById(`bp_sys${i}`).value = randomInRange(70,90);
-        document.getElementById(`bp_dia${i}`).value = randomInRange(40,60);
-        document.getElementById(`hr${i}`).value = randomInRange(110,140);
-        document.getElementById(`rr${i}`).value = randomInRange(22,30);
-        document.getElementById(`temp${i}`).value = randomInRange(36.0,37.0,1);
-        document.getElementById(`spo2${i}`).value = randomInRange(85,92);
-        break;
-
-      case "highBP":
-        document.getElementById(`bp_sys${i}`).value = randomInRange(150,170);
-        document.getElementById(`bp_dia${i}`).value = randomInRange(95,110);
-        document.getElementById(`hr${i}`).value = randomInRange(80,100);
-        document.getElementById(`rr${i}`).value = randomInRange(16,22);
-        document.getElementById(`temp${i}`).value = randomInRange(36.5,37.2,1);
-        document.getElementById(`spo2${i}`).value = randomInRange(95,99);
-        break;
-    }
-  }
-
-  function rerandomize(i) {
-    const template = document.getElementById(`template${i}`).value;
-    if (!template) {
-      alert('Please select a template first!');
-      return;
-    }
-    applyTemplate(template, i);
-    saveBed(i);
-  }
-
-  /* ------------------------------
-     Persistence (auto-save)
-     ------------------------------ */
-
-  function saveBed(i) {
-    try {
+    for (let i = 1; i <= bedCount; i++) {
       const patient = (document.getElementById(`patient${i}`) || {}).value || "";
-      const sys = (document.getElementById(`bp_sys${i}`) || {}).value || "";
-      const dia = (document.getElementById(`bp_dia${i}`) || {}).value || "";
-      const hr = (document.getElementById(`hr${i}`) || {}).value || "";
-      const rr = (document.getElementById(`rr${i}`) || {}).value || "";
-      const mv = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
-      const temp = (document.getElementById(`temp${i}`) || {}).value || "";
-      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || "";
+      if (!patient) continue;
+
+      const room = getSelectedValue(`room-checkbox${i}`);
+      const bed = getSelectedValue(`bed-checkbox${i}`);
+      const bp_sys = (document.getElementById(`bp_sys${i}`) || {}).value || "N/A";
+      const bp_dia = (document.getElementById(`bp_dia${i}`) || {}).value || "N/A";
+      const hr = (document.getElementById(`hr${i}`) || {}).value || "N/A";
+      const temp = (document.getElementById(`temp${i}`) || {}).value || "N/A";
+      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || "N/A";
+      const rbs = (document.getElementById(`rbs${i}`) || {}).value || "";
+      const bm = (document.getElementById(`bm${i}`) || {}).value || "";
+      const uo = (document.getElementById(`uo${i}`) || {}).value || "";
+
       const gcs_e = (document.getElementById(`gcs_e${i}`) || {}).value || "";
       const gcs_v = (document.getElementById(`gcs_v${i}`) || {}).value || "";
       const gcs_m = (document.getElementById(`gcs_m${i}`) || {}).value || "";
       const gcs_total = (document.getElementById(`gcs_total${i}`) || {}).value || "";
-      const rbs = (document.getElementById(`rbs${i}`) || {}).value || "";
-      const bm = (document.getElementById(`bm${i}`) || {}).value || "";
-      const uo = (document.getElementById(`uo${i}`) || {}).value || "";
-      const template = (document.getElementById(`template${i}`) || {}).value || "";
 
-      // single room/bed (we enforce single selection via handleSingleCheck)
-      let room = "";
-      document.querySelectorAll(`.room-checkbox${i}`).forEach(b => { if (b.checked) room = b.value; });
+      const isMV = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
+      const rrRaw = (document.getElementById(`rr${i}`) || {}).value || "N/A";
+      const rr = isMV ? "MV" : rrRaw;
 
-      let bedNum = "";
-      document.querySelectorAll(`.bed-checkbox${i}`).forEach(b => { if (b.checked) bedNum = b.value; });
+      let msg = `Room ${room || "?"} - Bed ${bed || "?"}\n`;
+      msg += `Patient: ${patient}\n`;
+      msg += `BP: ${bp_sys}/${bp_dia}\n`;
+      msg += `HR: ${hr}\n`;
+      msg += `RR: ${rr}\n`;
+      msg += `Temp: ${temp}\n`;
+      msg += `O₂: ${spo2}\n`;
+      if (gcs_total) msg += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
+      if (rbs) msg += `RBS: ${rbs}\n`;
+      if (bm) msg += `BM: ${bm}\n`;
+      if (uo) msg += `UO: ${uo}\n`;
 
-      const categories = {
-        surgery: !!(document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked),
-        pedia: !!(document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked),
-        icu: !!(document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked)
-      };
-
-      const data = {
-        patient, sys, dia, hr, rr, mv, temp, spo2,
-        gcs_e, gcs_v, gcs_m, gcs_total,
-        rbs, bm, uo, room, bedNum, categories, template
-      };
-
-      localStorage.setItem(`bed${i}`, JSON.stringify(data));
-    } catch (err) {
-      console.error("saveBed error", err);
+      if (document.getElementById(`cat_surgery${i}`)?.checked) groups.surgery.push(msg);
+      else if (document.getElementById(`cat_pedia${i}`)?.checked) groups.pedia.push(msg);
+      else if (document.getElementById(`cat_icu${i}`)?.checked) groups.icu.push(msg);
     }
+
+    let finalMsg = "";
+    if (groups.surgery.length) finalMsg += "=== Surgery ===\n" + groups.surgery.join("\n") + "\n\n";
+    if (groups.pedia.length) finalMsg += "=== Pedia ===\n" + groups.pedia.join("\n") + "\n\n";
+    if (groups.icu.length) finalMsg += "=== ICU ===\n" + groups.icu.join("\n") + "\n\n";
+
+    document.getElementById("output").innerText = finalMsg.trim();
+    return finalMsg.trim();
   }
-    
-  function clearBed(i) {
-    // Fields to clear (vitals + related optional data)
-    const clearFields = ['bp_sys','bp_dia','hr','rr','temp','spo2','gcs_e','gcs_v','gcs_m','gcs_total','rbs','bm','uo'];
-    clearFields.forEach(f => {
-      const el = document.getElementById(`${f}${i}`);
-      if (el) {
-        el.value = '';
-        // ensure RR is enabled when clearing
-        if (f === 'rr') el.disabled = false;
-      }
-    });
-  
-    // Uncheck MV if present and re-enable RR input
-    const mv = document.getElementById(`mv${i}`);
-    if (mv) {
-      mv.checked = false;
-      const rrEl = document.getElementById(`rr${i}`);
-      if (rrEl) rrEl.disabled = false;
+
+  // Send button listener
+  document.getElementById("sendBtn").addEventListener("click", async function () {
+    const message = generateAllMessages();
+    if (!message) {
+      alert("No patient data to send!");
+      return;
     }
-  
-    // Do NOT clear patient name / room / bed / categories / template.
-    // Persist current state
-    saveBed(i);
-  }
 
-  /* Attach auto-save listeners for a set of fields on bed i */
-  function attachAutoSave(i) {
-    const textFields = ["patient","bp_sys","bp_dia","hr","rr","temp","spo2","gcs_e","gcs_v","gcs_m","gcs_total","rbs","bm","uo"];
-    textFields.forEach(f => {
-      const el = document.getElementById(`${f}${i}`);
-      if (el) el.addEventListener('input', () => saveBed(i));
-    });
-
-    // checkboxes: room & bed & categories & mv
-    document.querySelectorAll(`.room-checkbox${i}`).forEach(cb => {
-      cb.addEventListener('change', (ev) => { handleSingleCheck(ev, `room-checkbox${i}`); saveBed(i); });
-    });
-    document.querySelectorAll(`.bed-checkbox${i}`).forEach(cb => {
-      cb.addEventListener('change', (ev) => { handleSingleCheck(ev, `bed-checkbox${i}`); saveBed(i); });
-    });
-    ["cat_surgery","cat_pedia","cat_icu"].forEach(base => {
-      const el = document.getElementById(`${base}${i}`);
-      if (el) el.addEventListener('change', () => saveBed(i));
-    });
-
-    const mv = document.getElementById(`mv${i}`);
-    if (mv) mv.addEventListener('change', () => {
-      const rrEl = document.getElementById(`rr${i}`);
-      if (mv.checked) {
-        // disable RR input if MV is checked and clear value
-        if (rrEl) { rrEl.value = ""; rrEl.disabled = true; }
-      } else {
-        if (rrEl) rrEl.disabled = false;
-      }
-      saveBed(i);
-    });
-
-    const template = document.getElementById(`template${i}`);
-    if (template) template.addEventListener('change', () => { applyTemplate(template.value, i); saveBed(i); });
-
-    const rerand = document.getElementById(`rerand${i}`);
-    if (rerand) rerand.addEventListener('click', () => rerandomize(i));
-  }
-
-  /* ------------------------------
-     Build forms
-     ------------------------------ */
-
-  function generateBedForms() {
-    const container = document.getElementById('bedsContainer');
-    container.innerHTML = ''; // clear
-    const count = parseInt(document.getElementById('bedCount').value) || 0;
-
-    for (let i = 1; i <= count; i++) {
-      const div = document.createElement('div');
-      div.className = 'bed-container';
-
-      div.innerHTML = `
-        <h3>Patient ${i}</h3>
-
-        <label>Quick Fill Template:</label>
-        <div class="template-row">
-          <select id="template${i}" class="template-select">
-            <option value="">-- Select Template --</option>
-            <option value="normalAdult">Normal Adult</option>
-            <option value="normalPedia">Normal Pedia</option>
-            <option value="lowBP">Critical Low BP</option>
-            <option value="highBP">High BP</option>
-          </select>
-          <button id="rerand${i}" class="small-btn" type="button" title="Re-randomize">🔄</button>
-          <button id="clear${i}" class="small-btn" type="button" onclick="clearBed(${i})">Clear</button>
-
-        </div>
-
-        <label>Room:</label>
-        <div class="checkbox-row">
-          <label><input type="checkbox" name="room${i}" value="A3" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A3</label>
-          <label><input type="checkbox" name="room${i}" value="A4" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A4</label>
-          <label><input type="checkbox" name="room${i}" value="A5" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A5</label>
-          <label><input type="checkbox" name="room${i}" value="A6" class="room-checkbox${i}" onclick="handleSingleCheck(event, 'room-checkbox${i}')"> A6</label>
-        </div>
-
-        <label>Bed #:</label>
-        <div class="checkbox-row">
-          <label><input type="checkbox" name="bed${i}" value="1" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 1</label>
-          <label><input type="checkbox" name="bed${i}" value="2" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 2</label>
-          <label><input type="checkbox" name="bed${i}" value="3" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 3</label>
-          <label><input type="checkbox" name="bed${i}" value="4" class="bed-checkbox${i}" onclick="handleSingleCheck(event, 'bed-checkbox${i}')"> 4</label>
-        </div>
-
-        <label>Patient Categories:</label>
-        <div class="checkbox-row">
-          <label><input type="checkbox" id="cat_surgery${i}"> Surgery</label>
-          <label><input type="checkbox" id="cat_pedia${i}"> Pedia</label>
-          <label><input type="checkbox" id="cat_icu${i}"> ICU</label>
-        </div>
-
-        <label>Patient Name:</label>
-        <input type="text" id="patient${i}" placeholder="Patient Name">
-
-        <label>BP (mmHg):</label>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <input type="number" id="bp_sys${i}" placeholder="Sys" style="flex:1;">
-          <span>/</span>
-          <input type="number" id="bp_dia${i}" placeholder="Dia" style="flex:1;">
-        </div>
-
-        <label>HR (bpm):</label>
-        <input type="number" id="hr${i}" placeholder="e.g. 80">
-
-        <label>RR (/min):</label>
-        <input type="number" id="rr${i}" placeholder="e.g. 18">
-
-        <label style="margin-top:6px;"><input type="checkbox" id="mv${i}"> On Mechanical Ventilator</label>
-
-        <label>Temp (°C):</label>
-        <input type="number" step="0.1" id="temp${i}" placeholder="e.g. 36.5">
-
-        <label>O₂ Saturation (%):</label>
-        <input type="number" id="spo2${i}" placeholder="e.g. 100">
-
-        <label>GCS (optional):</label>
-        <div style="display:flex;gap:6px;">
-          <input type="number" id="gcs_e${i}" min="1" max="4" placeholder="E">
-          <input type="number" id="gcs_v${i}" min="1" max="5" placeholder="V">
-          <input type="number" id="gcs_m${i}" min="1" max="6" placeholder="M">
-          <input type="number" id="gcs_total${i}" placeholder="Total (optional)">
-        </div>
-
-        <label>RBS (optional):</label>
-        <input type="text" id="rbs${i}">
-
-        <label>Bowel Movement (BM) - optional:</label>
-        <input type="text" id="bm${i}">
-
-        <label>Urine Output (UO) - optional:</label>
-        <input type="text" id="uo${i}">
-      `;
-
-      container.appendChild(div);
-
-      // Attach listeners & auto-save
-      attachAutoSave(i);
-
-      // Load saved data (if any)
-      const savedRaw = localStorage.getItem(`bed${i}`);
-      if (savedRaw) {
-        try {
-          const data = JSON.parse(savedRaw);
-
-          if (data.patient) document.getElementById(`patient${i}`).value = data.patient;
-          if (data.sys) document.getElementById(`bp_sys${i}`).value = data.sys;
-          if (data.dia) document.getElementById(`bp_dia${i}`).value = data.dia;
-          if (data.hr) document.getElementById(`hr${i}`).value = data.hr;
-          if (data.rr) document.getElementById(`rr${i}`).value = data.rr;
-          if (data.mv) {
-            const mvEl = document.getElementById(`mv${i}`);
-            if (mvEl) { mvEl.checked = true; const rrEl = document.getElementById(`rr${i}`); if (rrEl) { rrEl.disabled = true; } }
-          }
-          if (data.temp) document.getElementById(`temp${i}`).value = data.temp;
-          if (data.spo2) document.getElementById(`spo2${i}`).value = data.spo2;
-
-          if (data.gcs_e) document.getElementById(`gcs_e${i}`).value = data.gcs_e;
-          if (data.gcs_v) document.getElementById(`gcs_v${i}`).value = data.gcs_v;
-          if (data.gcs_m) document.getElementById(`gcs_m${i}`).value = data.gcs_m;
-          if (data.gcs_total) document.getElementById(`gcs_total${i}`).value = data.gcs_total;
-
-          if (data.rbs) document.getElementById(`rbs${i}`).value = data.rbs;
-          if (data.bm) document.getElementById(`bm${i}`).value = data.bm;
-          if (data.uo) document.getElementById(`uo${i}`).value = data.uo;
-
-          // categories
-          if (data.categories) {
-            if (data.categories.surgery) document.getElementById(`cat_surgery${i}`).checked = true;
-            if (data.categories.pedia) document.getElementById(`cat_pedia${i}`).checked = true;
-            if (data.categories.icu) document.getElementById(`cat_icu${i}`).checked = true;
-          }
-
-          // room & bed
-          if (data.room) {
-            document.querySelectorAll(`.room-checkbox${i}`).forEach(cb => { cb.checked = (cb.value === data.room); });
-          }
-          if (data.bedNum) {
-            document.querySelectorAll(`.bed-checkbox${i}`).forEach(cb => { cb.checked = (cb.value === data.bedNum); });
-          }
-
-          // template
-          if (data.template) {
-            const t = document.getElementById(`template${i}`);
-            if (t) t.value = data.template;
-          }
-
-        } catch (err) {
-          console.error("load bed", i, err);
+    try {
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbzis8FcAZbs20usOCx3BtV5dZMiZ20K5e7eONbBgSfYQ5HIdadcqpPiIVwSiW6lWfav/exec",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
         }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("Message sent successfully!");
+      } else {
+        alert("Error sending message: " + (result.error || JSON.stringify(result)));
       }
-    } // end for
-  } // end generateBedForms
-
-  /* ------------------------------
-     Generate Messages grouped by category
-     ------------------------------ */
-
-/* Generate all messages grouped by categories */
-function generateAllMessages() {
-  let groups = { surgery: [], pedia: [], icu: [] };
-
-  for (let i = 1; i <= bedCount; i++) {
-    const patient = (document.getElementById(`patient${i}`) || {}).value || "";
-    if (!patient) continue;
-
-    const room = getSelectedValue(`room-checkbox${i}`);
-    const bed = getSelectedValue(`bed-checkbox${i}`);
-    const bp_sys = (document.getElementById(`bp_sys${i}`) || {}).value || "N/A";
-    const bp_dia = (document.getElementById(`bp_dia${i}`) || {}).value || "";
-    const hr = (document.getElementById(`hr${i}`) || {}).value || "N/A";
-    const temp = (document.getElementById(`temp${i}`) || {}).value || "N/A";
-    const spo2 = (document.getElementById(`spo2${i}`) || {}).value || "N/A";
-    const rbs = (document.getElementById(`rbs${i}`) || {}).value || "";
-    const bm = (document.getElementById(`bm${i}`) || {}).value || "";
-    const uo = (document.getElementById(`uo${i}`) || {}).value || "";
-
-    const gcs_e = (document.getElementById(`gcs_e${i}`) || {}).value || "";
-    const gcs_v = (document.getElementById(`gcs_v${i}`) || {}).value || "";
-    const gcs_m = (document.getElementById(`gcs_m${i}`) || {}).value || "";
-    const gcs_total = (document.getElementById(`gcs_total${i}`) || {}).value || "";
-
-    const isMV = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
-    const rrRaw = (document.getElementById(`rr${i}`) || {}).value || "N/A";
-    const rr = isMV ? "MV" : rrRaw;
-
-    let msg = `Room ${room || "?"} - Bed ${bed || "?"}\n`;
-    msg += `Patient: ${patient}\n`;
-    msg += `BP: ${bp_sys}/${bp_dia}\n`;
-    msg += `HR: ${hr}\n`;
-    msg += `RR: ${rr}\n`;
-    msg += `Temp: ${temp}\n`;
-    msg += `O₂: ${spo2}\n`;
-    if (gcs_total) {
-      msg += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
+    } catch (err) {
+      alert("Network error: " + err.message);
     }
-    if (rbs) msg += `RBS: ${rbs}\n`;
-    if (bm) msg += `BM: ${bm}\n`;
-    if (uo) msg += `UO: ${uo}\n`;
-
-    if (document.getElementById(`cat_surgery${i}`)?.checked) {
-      groups.surgery.push(msg);
-    } else if (document.getElementById(`cat_pedia${i}`)?.checked) {
-      groups.pedia.push(msg);
-    } else if (document.getElementById(`cat_icu${i}`)?.checked) {
-      groups.icu.push(msg);
-    }
-  }
-
-  let finalMsg = "";
-  if (groups.surgery.length) {
-    finalMsg += "=== Surgery ===\n" + groups.surgery.join("\n") + "\n\n";
-  }
-  if (groups.pedia.length) {
-    finalMsg += "=== Pedia ===\n" + groups.pedia.join("\n") + "\n\n";
-  }
-  if (groups.icu.length) {
-    finalMsg += "=== ICU ===\n" + groups.icu.join("\n") + "\n\n";
-  }
-
-  document.getElementById("output").innerText = finalMsg.trim();
-  return finalMsg.trim();
-}
-
-/* Dark mode toggle */
-document.getElementById("darkModeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
-});
-if (localStorage.getItem("darkMode") === "true") {
-  document.body.classList.add("dark-mode");
-}
-
-document.getElementById("sendBtn").addEventListener("click", async function () {
-      let message = generateAllMessages(); // gets the staff’s formatted message
-
-      try {
-          const response = await fetch("https://script.google.com/macros/s/AKfycbzis8FcAZbs20usOCx3BtV5dZMiZ20K5e7eONbBgSfYQ5HIdadcqpPiIVwSiW6lWfav/exec", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ message })
-            });
-
-
-          const result = await response.json();
-          if (response.ok) {
-              alert("Message sent successfully!");
-          } else {
-              alert("Error sending message: " + (result.error || JSON.stringify(result)));
-          }
-      } catch (err) {
-          alert("Network error: " + err.message);
-      }
   });
-    
-  </script>
+</script>
 </body>
 </html>
+
 
 
 
