@@ -694,60 +694,34 @@ Object.keys(messages).forEach(cat => {
     // Combine into one payload
     const allMessages = `--- Surgery Patients ---\n${surgeryPatients}\n\n--- Pedia Patients ---\n${pediaPatients}\n\n--- ICU Patients ---\n${icuPatients}`;
 
-    // Your station PC URL (LAN)
-    const stationURL = ' https://causational-crawlingly-christina.ngrok-free.dev/send';
+    // Your Google Apps Script Web App URL
+    const sheetsURL = 'https://script.google.com/macros/s/AKfycbzP9rT7tp5eGGjcbe5rborHr75pNMC8VpzxZDqDjCgXVeJfcXE0UxiPtOraKO3xQk14Dw/exec';
 
     // Send message via POST
-    const response = await fetch(stationURL, {
+    const response = await fetch(sheetsURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: allMessages })
     });
 
-    // Try parsing JSON response
-    const result = await response.json().catch(() => null);
+    // Parse JSON response
+    const result = await response.json();
 
-    if (result?.ok) {
-      alert('✅ Message sent to station PC!');
+    if (result?.status === 'ok') {
+      alert(`✅ Message sent to Google Sheets! (ID: ${result.id})`);
     } else {
-      alert('⚠️ Message sent, but station response: ' + (result ? JSON.stringify(result) : 'No JSON returned'));
+      alert('⚠️ Message sent, but Google Sheets response: ' + JSON.stringify(result));
     }
 
   } catch (err) {
     alert('❌ Failed to send: ' + err);
   }
 }
-
-    for (let i = 1; i <= numPatients; i++) {
-  let patientName = document.getElementById(`patient${i}`)?.value || "Unknown Patient";
-  let sys = document.getElementById(`bp_sys${i}`)?.value || "N/A";
-  let dia = document.getElementById(`bp_dia${i}`)?.value || "N/A";
-  let hr  = document.getElementById(`hr${i}`)?.value || "N/A";
-  let rr  = document.getElementById(`rr${i}`)?.value || (document.getElementById(`mv${i}`)?.checked ? "MV" : "N/A");
-  let temp = document.getElementById(`temp${i}`)?.value || "N/A";
-  let spo2 = document.getElementById(`spo2${i}`)?.value || "N/A";
-
-  let line = `${room} - Bed ${bedNum}\nPatient: ${patientName}\nBP: ${sys}/${dia}\nHR: ${hr}\nRR: ${rr}\nTemp: ${temp}\nO₂: ${spo2}\n\n`;
-
-  cats.forEach(c => {
-    messages[c] += line;
-  });
-}
-
-    let output = "";
-for (let cat in messages) {
-  if (messages[cat]) {
-    output += `=== ${cat} Patients ===\n${messages[cat]}\n`;
-  }
-}
-document.getElementById("output").innerHTML =
-  `<pre>${output}</pre><button class="copy-btn" onclick="copyToClipboard('output')">Copy All</button>`;
-
     
-
   </script>
 </body>
 </html>
+
 
 
 
