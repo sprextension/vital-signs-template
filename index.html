@@ -667,21 +667,7 @@
   })();
 
     function sendVS() {
-  const outputContainer = document.getElementById('output');
-  
-  let allMessages = '';
-  ['Surgery', 'Pedia', 'ICU'].forEach(cat => {
-    const section = document.getElementById(`msg_${cat}`);
-    if(section) allMessages += section.innerText + '\n\n';
-  });
-
-  if(!allMessages.trim()){
-    alert('No messages to send!');
-    return;
-  }
-
-  function sendVS() {
-  // Get all three categories
+  // Get all categories
   const cats = ['Surgery', 'Pedia', 'ICU'];
   let allMessages = '';
 
@@ -691,8 +677,7 @@
       allMessages += `--- ${cat} Patients ---\n` + el.innerText.trim() + '\n\n';
     }
   });
-
-  if (!allMessages) {
+  if (!allMessages.trim()) {
     alert("No messages to send!");
     return;
   }
@@ -707,6 +692,7 @@
   </script>
 </body>
 </html>
+
 
 
 
