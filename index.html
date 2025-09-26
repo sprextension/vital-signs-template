@@ -424,7 +424,7 @@
      Build forms
      ------------------------------ */
 
-  function generateBedForms() {
+  window.generateBedForms = function() {
     const container = document.getElementById('bedsContainer');
     container.innerHTML = ''; // clear
     const count = parseInt(document.getElementById('bedCount').value) || 0;
@@ -692,6 +692,7 @@
   </script>
 </body>
 </html>
+
 
 
 
