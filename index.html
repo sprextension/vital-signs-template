@@ -194,11 +194,10 @@
     <option value="13">13 beds</option><option value="14">14 beds</option>
   </select>
 
-  <div id="bedFormsContainer"></div>
+  <div id="bedsContainer"></div>
 
   <button onclick="generateAllMessages()">Generate All Messages</button>
   <button onclick="clearAllBeds()">Clear All Beds</button>
-  <button id="sendMessengerBtn" class="primary-button" type="button">Send to Messenger</button>
   
 
   <div id="output"></div>
@@ -425,9 +424,7 @@
      ------------------------------ */
 
   function generateBedForms() {
-    const container = document.getElementById('bedFormsContainer');
-    if (!container) return; // stop if container missing
-    container.innerHTML = '';
+    const container = document.getElementById('bedsContainer');
     container.innerHTML = ''; // clear
     const count = parseInt(document.getElementById('bedCount').value) || 0;
 
@@ -590,7 +587,7 @@
       if (document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked) cats.push('Surgery');
       if (document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked) cats.push('Pedia');
       if (document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked) cats.push('ICU');
-      if (cats.length === 0) continue;
+      if (cats.length === 0) continue; // skip if no category tagged
 
       let room = 'Unknown Room';
       document.querySelectorAll(`.room-checkbox${i}`).forEach(box => { if (box.checked) room = box.value; });
@@ -642,27 +639,7 @@
       cats.forEach(cat => { messages[cat] += message; });
     }
 
-    // ----------------------------
-    // SEND TO MESSENGER GC
-    // ----------------------------
-    function sendToMessengerGC(msg) {
-      fetch('https://script.google.com/macros/s/AKfycbwddMOqKUuBklSLLqNbPctnOfsIXNpTqkBIQte8y9HyW7Qgy86Fek-FjzR9IUJ4qNl4/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: msg })
-      })
-      .then(res => res.json())
-      .then(data => console.log('Message sent:', data))
-      .catch(err => console.error('Messenger GC error:', err));
-    }
-
-    ['Surgery','Pedia','ICU'].forEach(cat => {
-      if (messages[cat]) sendToMessengerGC(messages[cat]);
-    });
-
-    // ----------------------------
-    // RENDER OUTPUT
-    // ----------------------------
+    // render output sections with copy buttons
     const outputContainer = document.getElementById('output');
     outputContainer.innerHTML = '';
     ['Surgery','Pedia','ICU'].forEach(cat => {
@@ -680,69 +657,16 @@
     if (!outputContainer.innerHTML) {
       outputContainer.innerHTML = '<p style="text-align:center; color:#666;">No patients tagged in any category.</p>';
     }
-}
+  }
 
-// Initialize (if bedCount already selected)
-(function init() {
+  // Initialize (if bedCount already selected)
+  (function init() {
     // Optionally generate the default forms if a count is selected
-})();
+    // If user had a previous bedCount saved, you could read it here (not implemented automatically)
+  })();
 
-document.getElementById('sendMessengerBtn').addEventListener('click', () => {
-    // reuse generateAllMessages() logic but only send, do not regenerate forms
-    const count = parseInt(document.getElementById('bedCount').value) || 0;
-    let messages = { 'Surgery':'', 'Pedia':'', 'ICU':'' };
-
-    for (let i = 1; i <= count; i++) {
-        const cats = [];
-        if (document.getElementById(`cat_surgery${i}`)?.checked) cats.push('Surgery');
-        if (document.getElementById(`cat_pedia${i}`)?.checked) cats.push('Pedia');
-        if (document.getElementById(`cat_icu${i}`)?.checked) cats.push('ICU');
-        if (cats.length === 0) continue;
-
-        let room = 'Unknown Room';
-        document.querySelectorAll(`.room-checkbox${i}`).forEach(box => { if (box.checked) room = box.value; });
-
-        let bedNum = [];
-        document.querySelectorAll(`.bed-checkbox${i}`).forEach(box => { if (box.checked) bedNum.push(box.value); });
-        bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
-
-        const name = document.getElementById(`patient${i}`)?.value || 'N/A';
-        const bp_sys = document.getElementById(`bp_sys${i}`)?.value;
-        const bp_dia = document.getElementById(`bp_dia${i}`)?.value;
-        const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
-        const hr = document.getElementById(`hr${i}`)?.value || 'N/A';
-        const isMV = document.getElementById(`mv${i}`)?.checked;
-        const rrRaw = document.getElementById(`rr${i}`)?.value || 'N/A';
-        const finalRR = isMV ? 'MV' : rrRaw;
-        const temp = document.getElementById(`temp${i}`)?.value || 'N/A';
-        const spo2 = document.getElementById(`spo2${i}`)?.value || 'N/A';
-
-        let message = `Room ${room} - Bed ${bedNum}\nPatient: ${name}\nBP: ${bp}\nHR: ${hr}\nRR: ${finalRR}\nTemp: ${temp}\nO₂: ${spo2}%\n\n`;
-        cats.forEach(cat => { messages[cat] += message; });
-    }
-
-    function sendToMessengerGC(msg) {
-        fetch('https://script.google.com/macros/s/AKfycbwddMOqKUuBklSLLqNbPctnOfsIXNpTqkBIQte8y9HyW7Qgy86Fek-FjzR9IUJ4qNl4/exec', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: msg })
-        })
-        .then(res => res.json())
-        .then(data => console.log('Message sent:', data))
-        .catch(err => console.error('Messenger GC error:', err));
-    }
-
-    ['Surgery','Pedia','ICU'].forEach(cat => {
-        if (messages[cat]) sendToMessengerGC(messages[cat]);
-    });
-
-    alert("Messages sent to Messenger!");
-});
-    
   </script>
 </body>
 </html>
-
-
 
 
