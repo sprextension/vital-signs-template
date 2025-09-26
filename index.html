@@ -640,6 +640,24 @@
       cats.forEach(cat => { messages[cat] += message; });
     }
 
+    function sendMessageToGoogle(message) {
+  fetch("https://script.google.com/macros/s/AKfycbzP9rT7tp5eGGjcbe5rborHr75pNMC8VpzxZDqDjCgXVeJfcXE0UxiPtOraKO3xQk14Dw/exec", {
+    method: "POST",
+    body: JSON.stringify({ message }),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(res => res.text())
+  .then(txt => console.log("Google Apps Script response:", txt))
+  .catch(err => console.error("Error sending message:", err));
+}
+
+    // send each category’s compiled message to Google if not empty
+Object.keys(messages).forEach(cat => {
+  if (messages[cat].trim() !== "") {
+    sendMessageToGoogle(messages[cat]);
+  }
+});
+
     // render output sections with copy buttons
     const outputContainer = document.getElementById('output');
     outputContainer.innerHTML = '';
@@ -700,9 +718,37 @@
   }
 }
 
+    for (let i = 1; i <= numPatients; i++) {
+  let patientName = document.getElementById(`patient${i}`)?.value || "Unknown Patient";
+  let sys = document.getElementById(`bp_sys${i}`)?.value || "N/A";
+  let dia = document.getElementById(`bp_dia${i}`)?.value || "N/A";
+  let hr  = document.getElementById(`hr${i}`)?.value || "N/A";
+  let rr  = document.getElementById(`rr${i}`)?.value || (document.getElementById(`mv${i}`)?.checked ? "MV" : "N/A");
+  let temp = document.getElementById(`temp${i}`)?.value || "N/A";
+  let spo2 = document.getElementById(`spo2${i}`)?.value || "N/A";
+
+  let line = `${room} - Bed ${bedNum}\nPatient: ${patientName}\nBP: ${sys}/${dia}\nHR: ${hr}\nRR: ${rr}\nTemp: ${temp}\nO₂: ${spo2}\n\n`;
+
+  cats.forEach(c => {
+    messages[c] += line;
+  });
+}
+
+    let output = "";
+for (let cat in messages) {
+  if (messages[cat]) {
+    output += `=== ${cat} Patients ===\n${messages[cat]}\n`;
+  }
+}
+document.getElementById("output").innerHTML =
+  `<pre>${output}</pre><button class="copy-btn" onclick="copyToClipboard('output')">Copy All</button>`;
+
+    
+
   </script>
 </body>
 </html>
+
 
 
 
