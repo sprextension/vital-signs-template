@@ -666,21 +666,39 @@
     // If user had a previous bedCount saved, you could read it here (not implemented automatically)
   })();
 
-    function sendVS() {
-  // Get all categories
-  const cats = ['Surgery', 'Pedia', 'ICU'];
-  let allMessages = '';
+    async function sendVS() {
+  try {
+    // Gather your messages from your page
+    // Replace this with your actual logic to collect messages
+    const surgeryPatients = document.querySelector('#surgery').innerText;
+    const pediaPatients = document.querySelector('#pedia').innerText;
+    const icuPatients = document.querySelector('#icu').innerText;
 
-  cats.forEach(cat => {
-    const el = document.getElementById(`msg_${cat}`);
-    if (el && el.innerText.trim() !== '') {
-      allMessages += `--- ${cat} Patients ---\n` + el.innerText.trim() + '\n\n';
+    const allMessages = `--- Surgery Patients ---\n${surgeryPatients}\n\n--- Pedia Patients ---\n${pediaPatients}\n\n--- ICU Patients ---\n${icuPatients}`;
+
+    // Replace with your station PC IP
+    const stationURL = 'http://192.168.1.50:3000/send';
+
+    // Send the message
+    const response = await fetch(stationURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: allMessages })
+    });
+
+    const result = await response.json();
+    if (result.ok) {
+      alert('✅ Message sent to station PC!');
+    } else {
+      alert('⚠️ Station response: ' + JSON.stringify(result));
     }
-  });
-  if (!allMessages.trim()) {
-    alert("No messages to send!");
-    return;
+
+  } catch (err) {
+    alert('❌ Failed to send: ' + err);
   }
+}
 
   // Send to your Node.js server
   fetch(`http://192.168.1.50:3000/send?message=${encodeURIComponent(allMessages)}`)
@@ -692,6 +710,7 @@
   </script>
 </body>
 </html>
+
 
 
 
