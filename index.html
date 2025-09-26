@@ -686,41 +686,32 @@ Object.keys(messages).forEach(cat => {
 
    async function sendVS() {
   try {
-    // Get the message content from your output sections
     const surgeryPatients = document.getElementById('msg_Surgery')?.innerText || '';
     const pediaPatients = document.getElementById('msg_Pedia')?.innerText || '';
     const icuPatients = document.getElementById('msg_ICU')?.innerText || '';
 
-    // Combine into one payload
     const allMessages = `--- Surgery Patients ---\n${surgeryPatients}\n\n--- Pedia Patients ---\n${pediaPatients}\n\n--- ICU Patients ---\n${icuPatients}`;
 
-    // Your Google Apps Script Web App URL
-    const sheetsURL = 'https://script.google.com/macros/s/AKfycbzP9rT7tp5eGGjcbe5rborHr75pNMC8VpzxZDqDjCgXVeJfcXE0UxiPtOraKO3xQk14Dw/exec';
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzP9rT7tp5eGGjcbe5rborHr75pNMC8VpzxZDqDjCgXVeJfcXE0UxiPtOraKO3xQk14Dw/exec";
 
-    // Send message via POST
-    const response = await fetch(sheetsURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    // Send POST to Google Apps Script with no-cors
+    fetch(scriptURL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: allMessages })
     });
 
-    // Parse JSON response
-    const result = await response.json();
-
-    if (result?.status === 'ok') {
-      alert(`✅ Message sent to Google Sheets! (ID: ${result.id})`);
-    } else {
-      alert('⚠️ Message sent, but Google Sheets response: ' + JSON.stringify(result));
-    }
+    alert('✅ Message sent to Google Sheets!');
 
   } catch (err) {
     alert('❌ Failed to send: ' + err);
   }
-}
-    
+}   
   </script>
 </body>
 </html>
+
 
 
 
