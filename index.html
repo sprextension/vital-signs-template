@@ -666,33 +666,33 @@
     // If user had a previous bedCount saved, you could read it here (not implemented automatically)
   })();
 
-    async function sendVS() {
+   async function sendVS() {
   try {
-    // Gather your messages from your page
-    // Replace this with your actual logic to collect messages
-    const surgeryPatients = document.querySelector('#surgery').innerText;
-    const pediaPatients = document.querySelector('#pedia').innerText;
-    const icuPatients = document.querySelector('#icu').innerText;
+    // Get the message content from your output sections
+    const surgeryPatients = document.getElementById('msg_Surgery')?.innerText || '';
+    const pediaPatients = document.getElementById('msg_Pedia')?.innerText || '';
+    const icuPatients = document.getElementById('msg_ICU')?.innerText || '';
 
+    // Combine into one payload
     const allMessages = `--- Surgery Patients ---\n${surgeryPatients}\n\n--- Pedia Patients ---\n${pediaPatients}\n\n--- ICU Patients ---\n${icuPatients}`;
 
-    // Replace with your station PC IP
+    // Your station PC URL (LAN)
     const stationURL = 'http://192.168.1.50:3000/send';
 
-    // Send the message
+    // Send message via POST
     const response = await fetch(stationURL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: allMessages })
     });
 
-    const result = await response.json();
-    if (result.ok) {
+    // Try parsing JSON response
+    const result = await response.json().catch(() => null);
+
+    if (result?.ok) {
       alert('✅ Message sent to station PC!');
     } else {
-      alert('⚠️ Station response: ' + JSON.stringify(result));
+      alert('⚠️ Message sent, but station response: ' + (result ? JSON.stringify(result) : 'No JSON returned'));
     }
 
   } catch (err) {
@@ -700,16 +700,10 @@
   }
 }
 
-  // Send to your Node.js server
-  fetch(`http://192.168.1.50:3000/send?message=${encodeURIComponent(allMessages)}`)
-    .then(res => res.text())
-    .then(data => alert("Message sent!"))
-    .catch(err => alert("Error sending message: " + err));
-}
-
   </script>
 </body>
 </html>
+
 
 
 
