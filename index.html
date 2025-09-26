@@ -681,7 +681,7 @@
   }
 
   // Replace <PC_IP_ADDRESS> with your station PC's IP
-  fetch(`http://<PC_IP_ADDRESS>:3000/send?message=${encodeURIComponent(allMessages)}`)
+  fetch(`http://192.168.1.50:3000/send?message=${encodeURIComponent(allMessages)}`)
     .then(response => response.text())
     .then(data => {
       alert('VS sent successfully!');
@@ -695,6 +695,7 @@
   </script>
 </body>
 </html>
+
 
 
 
