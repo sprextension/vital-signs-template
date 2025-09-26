@@ -680,21 +680,34 @@
     return;
   }
 
-  // Replace <PC_IP_ADDRESS> with your station PC's IP
+  function sendVS() {
+  // Get all three categories
+  const cats = ['Surgery', 'Pedia', 'ICU'];
+  let allMessages = '';
+
+  cats.forEach(cat => {
+    const el = document.getElementById(`msg_${cat}`);
+    if (el && el.innerText.trim() !== '') {
+      allMessages += `--- ${cat} Patients ---\n` + el.innerText.trim() + '\n\n';
+    }
+  });
+
+  if (!allMessages) {
+    alert("No messages to send!");
+    return;
+  }
+
+  // Send to your Node.js server
   fetch(`http://192.168.1.50:3000/send?message=${encodeURIComponent(allMessages)}`)
-    .then(response => response.text())
-    .then(data => {
-      alert('VS sent successfully!');
-    })
-    .catch(err => {
-      console.error(err);
-      alert('Failed to send VS.');
-    });
+    .then(res => res.text())
+    .then(data => alert("Message sent!"))
+    .catch(err => alert("Error sending message: " + err));
 }
 
   </script>
 </body>
 </html>
+
 
 
 
