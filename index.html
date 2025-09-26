@@ -180,6 +180,7 @@
 
   <div class="top-right">
   <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+  <button onclick="sendVS()" style="margin-left:8px;">📤 Send VS</button>
 </div>
   
   <h2>Vital Signs Formatter</h2>
@@ -665,8 +666,35 @@
     // If user had a previous bedCount saved, you could read it here (not implemented automatically)
   })();
 
+    function sendVS() {
+  const outputContainer = document.getElementById('output');
+  
+  let allMessages = '';
+  ['Surgery', 'Pedia', 'ICU'].forEach(cat => {
+    const section = document.getElementById(`msg_${cat}`);
+    if(section) allMessages += section.innerText + '\n\n';
+  });
+
+  if(!allMessages.trim()){
+    alert('No messages to send!');
+    return;
+  }
+
+  // Replace <PC_IP_ADDRESS> with your station PC's IP
+  fetch(`http://<PC_IP_ADDRESS>:3000/send?message=${encodeURIComponent(allMessages)}`)
+    .then(response => response.text())
+    .then(data => {
+      alert('VS sent successfully!');
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to send VS.');
+    });
+}
+
   </script>
 </body>
 </html>
+
 
 
