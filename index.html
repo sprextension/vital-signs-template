@@ -579,97 +579,66 @@
      Generate Messages grouped by category
      ------------------------------ */
 
- function generateAllMessages() {
-  const count = parseInt(document.getElementById('bedCount').value) || 0;
-  let messages = { 'Surgery': '', 'Pedia': '', 'ICU': '' };
-  let summaryData = []; // <-- collect all bed summaries here
+  function generateAllMessages() {
+    const count = parseInt(document.getElementById('bedCount').value) || 0;
+    let messages = { 'Surgery':'', 'Pedia':'', 'ICU':'' };
 
-  for (let i = 1; i <= count; i++) {
-    const cats = [];
-    if (document.getElementById(`cat_surgery${i}`)?.checked) cats.push('Surgery');
-    if (document.getElementById(`cat_pedia${i}`)?.checked) cats.push('Pedia');
-    if (document.getElementById(`cat_icu${i}`)?.checked) cats.push('ICU');
-    if (cats.length === 0) continue;
+    for (let i = 1; i <= count; i++) {
+      const cats = [];
+      if (document.getElementById(`cat_surgery${i}`) && document.getElementById(`cat_surgery${i}`).checked) cats.push('Surgery');
+      if (document.getElementById(`cat_pedia${i}`) && document.getElementById(`cat_pedia${i}`).checked) cats.push('Pedia');
+      if (document.getElementById(`cat_icu${i}`) && document.getElementById(`cat_icu${i}`).checked) cats.push('ICU');
+      if (cats.length === 0) continue; // skip if no category tagged
 
-    let room = 'Unknown Room';
-    document.querySelectorAll(`.room-checkbox${i}`).forEach(box => { if (box.checked) room = box.value; });
+      let room = 'Unknown Room';
+      document.querySelectorAll(`.room-checkbox${i}`).forEach(box => { if (box.checked) room = box.value; });
 
-    let bedNum = [];
-    document.querySelectorAll(`.bed-checkbox${i}`).forEach(box => { if (box.checked) bedNum.push(box.value); });
-    bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
+      let bedNum = [];
+      document.querySelectorAll(`.bed-checkbox${i}`).forEach(box => { if (box.checked) bedNum.push(box.value); });
+      bedNum = bedNum.length > 0 ? bedNum.join(', ') : 'Unknown Bed';
 
-    const name = document.getElementById(`patient${i}`)?.value || 'N/A';
-    const bp_sys = document.getElementById(`bp_sys${i}`)?.value;
-    const bp_dia = document.getElementById(`bp_dia${i}`)?.value;
-    const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
-    const hr = document.getElementById(`hr${i}`)?.value || 'N/A';
-    const isMV = !!document.getElementById(`mv${i}`)?.checked;
-    const rrRaw = document.getElementById(`rr${i}`)?.value || 'N/A';
-    const finalRR = isMV ? 'MV' : rrRaw;
-    const temp = document.getElementById(`temp${i}`)?.value || 'N/A';
-    const spo2 = document.getElementById(`spo2${i}`)?.value || 'N/A';
+      const name = (document.getElementById(`patient${i}`) || {}).value || 'N/A';
+      const bp_sys = (document.getElementById(`bp_sys${i}`) || {}).value;
+      const bp_dia = (document.getElementById(`bp_dia${i}`) || {}).value;
+      const bp = (bp_sys && bp_dia) ? `${bp_sys}/${bp_dia}` : 'N/A';
+      const hr = (document.getElementById(`hr${i}`) || {}).value || 'N/A';
+      const isMV = !!(document.getElementById(`mv${i}`) && document.getElementById(`mv${i}`).checked);
+      const rrRaw = (document.getElementById(`rr${i}`) || {}).value || 'N/A';
+      const finalRR = isMV ? 'MV' : rrRaw;
+      const temp = (document.getElementById(`temp${i}`) || {}).value || 'N/A';
+      const spo2 = (document.getElementById(`spo2${i}`) || {}).value || 'N/A';
 
-    const gcs_e = parseInt(document.getElementById(`gcs_e${i}`)?.value) || 0;
-    const gcs_v = parseInt(document.getElementById(`gcs_v${i}`)?.value) || 0;
-    const gcs_m = parseInt(document.getElementById(`gcs_m${i}`)?.value) || 0;
-    const gcs_total_input = document.getElementById(`gcs_total${i}`)?.value || '';
-    const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
+      const gcs_e = parseInt((document.getElementById(`gcs_e${i}`) || {}).value) || 0;
+      const gcs_v = parseInt((document.getElementById(`gcs_v${i}`) || {}).value) || 0;
+      const gcs_m = parseInt((document.getElementById(`gcs_m${i}`) || {}).value) || 0;
+      const gcs_total_input = (document.getElementById(`gcs_total${i}`) || {}).value || '';
+      const gcsFilled = gcs_e > 0 || gcs_v > 0 || gcs_m > 0 || gcs_total_input.trim() !== '';
 
-    const rbs = document.getElementById(`rbs${i}`)?.value || '';
-    const bm = document.getElementById(`bm${i}`)?.value || '';
-    const uo = document.getElementById(`uo${i}`)?.value || '';
+      const rbs = (document.getElementById(`rbs${i}`) || {}).value || '';
+      const bm = (document.getElementById(`bm${i}`) || {}).value || '';
+      const uo = (document.getElementById(`uo${i}`) || {}).value || '';
 
-    let message = `Room ${room} - Bed ${bedNum}\n` +
-                  `Patient: ${name}\n` +
-                  `BP: ${bp}\n` +
-                  `HR: ${hr}\n` +
-                  `RR: ${finalRR}\n` +
-                  `Temp: ${temp}\n` +
-                  `O₂: ${spo2}%\n`;
+      let message = `Room ${room} - Bed ${bedNum}\n` +
+                    `Patient: ${name}\n` +
+                    `BP: ${bp}\n` +
+                    `HR: ${hr}\n` +
+                    `RR: ${finalRR}\n` +
+                    `Temp: ${temp}\n` +
+                    `O₂: ${spo2}%\n`;
 
-    if (gcsFilled) {
-      const gcs_total = gcs_total_input ? gcs_total_input : (gcs_e + gcs_v + gcs_m > 0 ? (gcs_e + gcs_v + gcs_m) : 'N/A');
-      message += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
+      if (gcsFilled) {
+        const gcs_total = gcs_total_input ? gcs_total_input : (gcs_e + gcs_v + gcs_m > 0 ? (gcs_e+gcs_v+gcs_m) : 'N/A');
+        message += `GCS: E${gcs_e} V${gcs_v} M${gcs_m} = ${gcs_total}\n`;
+      }
+
+      if (rbs) message += `RBS: ${rbs}\n`;
+      if (bm) message += `BM: ${bm}\n`;
+      if (uo) message += `UO: ${uo}\n`;
+
+      message += '\n';
+
+      cats.forEach(cat => { messages[cat] += message; });
     }
-
-    if (rbs) message += `RBS: ${rbs}\n`;
-    if (bm) message += `BM: ${bm}\n`;
-    if (uo) message += `UO: ${uo}\n`;
-
-    message += '\n';
-
-    cats.forEach(cat => { messages[cat] += message; });
-
-    // Save to summary
-    summaryData.push({
-      room,
-      bed: bedNum,
-      bp,
-      hr,
-      rr: finalRR,
-      temp,
-      spo2
-    });
-  }
-
-  // 🔹 Create summary at the end of the result
-  let summaryText = '';
-  if (summaryData.length > 0) {
-    summaryText += '\n==============================\n📋 VITAL SIGNS SUMMARY\n';
-    summaryData.forEach(s => {
-      summaryText += `Room ${s.room} - Bed ${s.bed} | BP: ${s.bp}, HR: ${s.hr}, RR: ${s.rr}, Temp: ${s.temp}, O₂: ${s.spo2}%\n`;
-    });
-  }
-
-  // Combine all category messages + summary
-  const finalMessage =
-    `📁 SURGERY\n${messages.Surgery}\n` +
-    `📁 PEDIA\n${messages.Pedia}\n` +
-    `📁 ICU\n${messages.ICU}\n` +
-    summaryText;
-
-  document.getElementById('result').value = finalMessage.trim();
-}
 
     function sendMessageToGoogle(message) {
   fetch("https://script.google.com/macros/s/AKfycbzP9rT7tp5eGGjcbe5rborHr75pNMC8VpzxZDqDjCgXVeJfcXE0UxiPtOraKO3xQk14Dw/exec", {
@@ -739,61 +708,9 @@ Object.keys(messages).forEach(cat => {
     alert('❌ Failed to send: ' + err);
   }
 }   
-
-    // ---------------------------
-// Vital Signs History Tracker
-// ---------------------------
-let vitalsHistory = JSON.parse(localStorage.getItem("vitalsHistory") || "{}");
-
-function saveVitalToHistory(bedNumber, data) {
-  if (!vitalsHistory[bedNumber]) vitalsHistory[bedNumber] = [];
-
-  const now = new Date();
-  const hour = now.getHours();
-  const timeLabel =
-    hour < 10 ? "8AM" :
-    hour < 15 ? "12NN" :
-    "4PM";
-
-  vitalsHistory[bedNumber].push({
-    time: timeLabel,
-    BP: data.bp_sys && data.bp_dia ? `${data.bp_sys}/${data.bp_dia}` : "",
-    PR: data.hr || "",
-    RR: data.rr || "",
-    Temp: data.temp || "",
-    O2: data.spo2 || ""
-  });
-
-  // Keep only the latest 3 readings (8AM, 12NN, 4PM)
-  if (vitalsHistory[bedNumber].length > 3) {
-    vitalsHistory[bedNumber] = vitalsHistory[bedNumber].slice(-3);
-  }
-
-  localStorage.setItem("vitalsHistory", JSON.stringify(vitalsHistory));
-}
-
-function summarizeVitals(bedNumber) {
-  const list = vitalsHistory[bedNumber] || [];
-  if (list.length === 0) return "";
-
-  let summary = "\n\n📊 Vital Signs Summary\n";
-  summary += "Time | BP | PR | RR | Temp | O₂\n";
-  summary += "---------------------------------\n";
-
-  for (const v of list) {
-    summary += `${v.time.padEnd(5)} | ${v.BP.padEnd(7)} | ${String(v.PR).padEnd(3)} | ${String(v.RR).padEnd(3)} | ${String(v.Temp).padEnd(5)} | ${v.O2}\n`;
-  }
-
-  return summary;
-}
-
-    
   </script>
 </body>
 </html>
-
-
-
 
 
 
