@@ -638,6 +638,9 @@
       message += '\n';
 
       cats.forEach(cat => { messages[cat] += message; });
+
+      saveVitalToHistory(i, data); // save the new vital
+      message += summarizeVitals(i); // add the summary at the end of each bed’s message
     }
 
     function sendMessageToGoogle(message) {
@@ -708,9 +711,59 @@ Object.keys(messages).forEach(cat => {
     alert('❌ Failed to send: ' + err);
   }
 }   
+
+    // ---------------------------
+// Vital Signs History Tracker
+// ---------------------------
+let vitalsHistory = JSON.parse(localStorage.getItem("vitalsHistory") || "{}");
+
+function saveVitalToHistory(bedNumber, data) {
+  if (!vitalsHistory[bedNumber]) vitalsHistory[bedNumber] = [];
+
+  const now = new Date();
+  const hour = now.getHours();
+  const timeLabel =
+    hour < 10 ? "8AM" :
+    hour < 15 ? "12NN" :
+    "4PM";
+
+  vitalsHistory[bedNumber].push({
+    time: timeLabel,
+    BP: data.bp_sys && data.bp_dia ? `${data.bp_sys}/${data.bp_dia}` : "",
+    PR: data.hr || "",
+    RR: data.rr || "",
+    Temp: data.temp || "",
+    O2: data.spo2 || ""
+  });
+
+  // Keep only the latest 3 readings (8AM, 12NN, 4PM)
+  if (vitalsHistory[bedNumber].length > 3) {
+    vitalsHistory[bedNumber] = vitalsHistory[bedNumber].slice(-3);
+  }
+
+  localStorage.setItem("vitalsHistory", JSON.stringify(vitalsHistory));
+}
+
+function summarizeVitals(bedNumber) {
+  const list = vitalsHistory[bedNumber] || [];
+  if (list.length === 0) return "";
+
+  let summary = "\n\n📊 Vital Signs Summary\n";
+  summary += "Time | BP | PR | RR | Temp | O₂\n";
+  summary += "---------------------------------\n";
+
+  for (const v of list) {
+    summary += `${v.time.padEnd(5)} | ${v.BP.padEnd(7)} | ${String(v.PR).padEnd(3)} | ${String(v.RR).padEnd(3)} | ${String(v.Temp).padEnd(5)} | ${v.O2}\n`;
+  }
+
+  return summary;
+}
+
+    
   </script>
 </body>
 </html>
+
 
 
 
